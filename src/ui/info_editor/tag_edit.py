@@ -182,8 +182,8 @@ class TagEdit(QFrame):
             TagEdit { 
             border-width:1px; 
             border-style: solid; 
-            border-color:gray; b
-            ackground-color: white; 
+            border-color:gray; 
+            background-color: white; 
             }""")
 
         self._line = TagLine()
@@ -235,17 +235,3 @@ class TagEdit(QFrame):
     def setEnabled(self, enable: bool):
         super().setEnabled(enable)
         self._line.setEnabled(enable)
-
-
-if __name__ == "__main__":
-    from PySide6.QtWidgets import QApplication, QWidget, QFormLayout
-
-    app = QApplication([])
-    window = QWidget()
-    window.setLayout(QFormLayout())
-    tag_edit = TagEdit()
-    tag_edit.tags = ["tag1", "tag2", "tag3"]
-    tag_edit.set_completer(["tag1", "tag2", "tag3", "tag4", "tag5"])
-    window.layout().addRow("Tags", tag_edit)
-    window.show()
-    app.exec()
