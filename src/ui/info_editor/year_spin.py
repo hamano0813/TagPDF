@@ -10,6 +10,14 @@ class YearSpin(QSpinBox):
         self.setRange(1950, 2050)
         self.setWrapping(True)
         self.lineEdit().setValidator(QRegularExpressionValidator(r'^\d{0,4}$'))
+        self.setStyleSheet("""
+            QSpinBox { 
+            padding-left: 5px; 
+            padding-right: 5px; 
+            border-width:1px; 
+            border-style: solid; 
+            border-color:gray; }
+            """)
 
     def textFromValue(self, val):
         if val == 1950:

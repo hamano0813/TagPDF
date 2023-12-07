@@ -26,8 +26,8 @@ class InfoEditor(QFrame):
         self.title.setFixedHeight(30)
         self.publisher.setFixedHeight(30)
         self.release.setFixedHeight(30)
-        self.title.setStyleSheet('QLineEdit { padding-left: 3px; padding-right: 3px; }')
-        self.publisher.setStyleSheet('QLineEdit { padding-left: 3px; padding-right: 3px; }')
+        self.title.setStyleSheet('QLineEdit { padding-left: 8px; padding-right: 5px; border-width:1px; border-style: solid; border-color:gray; }')
+        self.publisher.setStyleSheet('QLineEdit { padding-left: 8px; padding-right: 5px; border-width:1px; border-style: solid; border-color:gray; }')
         self.title.setContentsMargins(0, 0, 0, 0)
         self.publisher.setContentsMargins(0, 0, 0, 0)
         self.release.setContentsMargins(0, 0, 0, 0)
@@ -64,11 +64,11 @@ class InfoEditor(QFrame):
         self.path = path
         self.pdf = self.session.query(PDF).filter(PDF.fp == path).one_or_none()
         if self.pdf:
+            self._enable(True)
             self.title.setText(self.pdf.title)
             self.publisher.setText(self.pdf.publisher)
             self.release.setValue(self.pdf.release)
             self.tags.tags = [t.tag for t in self.pdf.tags]
-            self._enable(True)
         else:
             self.clear()
             self._enable(False)

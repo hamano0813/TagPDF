@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QFrame, QLabel, QPushButton, QLineEdit, QCompleter
 class TagLine(QLineEdit):
     def __init__(self):
         super().__init__(parent=None)
-        self.setContentsMargins(8, 1, 0, 0)
+        self.setContentsMargins(10, 3, 0, 0)
         self.setStyleSheet("TagLine { border: none; background-color: transparent; margin-top: 2px; }")
 
     def set_completer(self, tags: list[str]):
@@ -17,7 +17,7 @@ class TagLine(QLineEdit):
         self.setCompleter(completer)
         self.completer().popup().verticalScrollBar().hide()
         self.completer().popup().verticalScrollBar().setStyleSheet("QScrollBar { width: 0px; }")
-        self.completer().popup().setStyleSheet("QListView { padding-left: 5px; };")
+        self.completer().popup().setStyleSheet("QListView { padding-left: 7px; };")
         self.completer().setMaxVisibleItems(10)
 
     def sizeHint(self):
@@ -29,8 +29,8 @@ class TagLabel(QFrame):
 
     qss = """
     TagLabel {{ 
-    margin-left: 1px; 
-    margin-top: 2px; 
+    margin-left: 3px; 
+    margin-top: 3px; 
     border: 1px solid silver; 
     border-radius: 4px; 
     background-color: {color}; 
@@ -81,10 +81,11 @@ class TagLabel(QFrame):
 
 class FlowLayout(QLayout):
     heightChanged = Signal(int)
+    widthChanged = Signal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setSpacing(1)
+        self.setSpacing(0)
         self._item_list = []
 
     def __del__(self):
@@ -161,12 +162,14 @@ class FlowLayout(QLayout):
             if not test_only:
                 item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
                 if isinstance(item.widget(), TagLine):
-                    self.heightChanged.emit(y + item.sizeHint().height() + 5)
+                    self.heightChanged.emit(y + item.sizeHint().height() + 6)
                     line_rect = QRect(QPoint(x, y), item.sizeHint())
-                    line_rect.setRight(rect.right() - space_x)
+                    line_rect.setRight(rect.right() - space_x - 3)
                     item.setGeometry(line_rect)
             x = next_x
             line_height = max(line_height, item.sizeHint().height())
+        if self.count() > 1:
+            self.widthChanged.emit(max(i.widget().width() for i in self._item_list[:-1]) + 3)
         return y + line_height - rect.y()
 
 
@@ -175,11 +178,11 @@ class TagEdit(QFrame):
 
     def __init__(self, tags: list[str] = None):
         super().__init__(parent=None)
-        self.setMinimumWidth(200)
 
         self._tags: dict[str, TagLabel] = dict()
         self.setStyleSheet("""
             TagEdit { 
+            padding: 3px;
             border-width:1px; 
             border-style: solid; 
             border-color:gray; 
@@ -188,11 +191,13 @@ class TagEdit(QFrame):
 
         self._line = TagLine()
         self._line.returnPressed.connect(self._append_tag)
+        self._line.editingFinished.connect(self._append_tag)
 
         self.setLayout(FlowLayout())
         self.layout().addWidget(self._line)
 
-        self.layout().heightChanged.connect(self.setFixedHeight)
+        self.layout().heightChanged.connect(self.setMinimumHeight)
+        self.layout().widthChanged.connect(self.setMinimumWidth)
 
         if tags:
             self.tags = tags
@@ -235,3 +240,9 @@ class TagEdit(QFrame):
     def setEnabled(self, enable: bool):
         super().setEnabled(enable)
         self._line.setEnabled(enable)
+
+
+if __name__ == '__main__':
+    import platform
+    # print os version ,eg win11 win10 win7
+    print(platform.version())
