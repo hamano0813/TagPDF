@@ -215,17 +215,3 @@ class TagEdit(QFrame):
     def setEnabled(self, enable: bool):
         super().setEnabled(enable)
         self._line.setEnabled(enable)
-
-
-if __name__ == '__main__':
-    from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout
-
-    app = QApplication([])
-    window = QWidget()
-    window.setLayout(QVBoxLayout())
-    tag_edit = TagEdit()
-    window.layout().addWidget(tag_edit)
-    window.show()
-    tag_edit.set_completer(['tag1', 'tag2', 'tag3', 'tag4', 'tag5', 'tag6', 'tag7', 'tag8'])
-    tag_edit.tags = ['test1', 'test2']
-    app.exec()
