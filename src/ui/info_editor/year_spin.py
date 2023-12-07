@@ -9,7 +9,6 @@ class YearSpin(QSpinBox):
         self.setAlignment(Qt.AlignRight)
         self.setRange(1950, 2050)
         self.setWrapping(True)
-        self.setFixedHeight(30)
         self.lineEdit().setValidator(QRegularExpressionValidator(r'^\d{0,4}$'))
 
     def textFromValue(self, val):

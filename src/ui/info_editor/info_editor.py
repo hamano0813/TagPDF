@@ -25,11 +25,13 @@ class InfoEditor(QFrame):
 
         self.title.setFixedHeight(30)
         self.publisher.setFixedHeight(30)
+        self.release.setFixedHeight(30)
         self.title.setStyleSheet('QLineEdit { padding-left: 3px; padding-right: 3px; }')
         self.publisher.setStyleSheet('QLineEdit { padding-left: 3px; padding-right: 3px; }')
         self.title.setContentsMargins(0, 0, 0, 0)
         self.publisher.setContentsMargins(0, 0, 0, 0)
         self.release.setContentsMargins(0, 0, 0, 0)
+        self.tags.setContentsMargins(0, 0, 0, 0)
 
         self.setLayout(QFormLayout())
         self.layout().addRow(self.tr("Title"), self.title)
