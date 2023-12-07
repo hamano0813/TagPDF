@@ -23,9 +23,9 @@ class InfoEditor(QFrame):
         self.release = YearSpin()
         self.tags = TagEdit()
 
-        self.title.setFixedHeight(30)
-        self.publisher.setFixedHeight(30)
-        self.release.setFixedHeight(30)
+        self.title.setFixedHeight(31)
+        self.publisher.setFixedHeight(31)
+        self.release.setFixedHeight(31)
         self.title.setStyleSheet('QLineEdit { padding-left: 8px; padding-right: 5px; }')
         self.publisher.setStyleSheet('QLineEdit { padding-left: 8px; padding-right: 5px; }')
         self.title.setContentsMargins(0, 0, 0, 0)

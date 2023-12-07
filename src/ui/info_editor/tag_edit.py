@@ -1,12 +1,13 @@
 from PySide6.QtCore import Qt, QPoint, QRect, QSize, QEvent, Signal
-from PySide6.QtWidgets import QTextEdit, QFrame, QLabel, QPushButton, QLineEdit, QCompleter, QLayout, QHBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QTextEdit, QFrame, QLabel, QPushButton, QLineEdit, QCompleter, QStyle, QLayout, \
+    QHBoxLayout, QSizePolicy
 
 
 class TagLine(QLineEdit):
     def __init__(self):
         super().__init__(parent=None)
-        self.setContentsMargins(10, 3, 0, 0)
-        self.setStyleSheet("TagLine { border: none; background-color: transparent; margin-top: 2px; }")
+        self.setContentsMargins(6, 0, 0, 0)
+        self.setStyleSheet("TagLine { border: none; background-color: transparent;}")
 
     def set_completer(self, tags: list[str]):
         if not tags:
@@ -17,7 +18,7 @@ class TagLine(QLineEdit):
         self.setCompleter(completer)
         self.completer().popup().verticalScrollBar().hide()
         self.completer().popup().verticalScrollBar().setStyleSheet("QScrollBar { width: 0px; }")
-        self.completer().popup().setStyleSheet("QListView { padding-left: 7px; };")
+        self.completer().popup().setStyleSheet("QListView { margin-left: 3px;};")
         self.completer().setMaxVisibleItems(10)
 
     def sizeHint(self):
@@ -29,28 +30,26 @@ class TagLabel(QFrame):
 
     qss = """
     TagLabel {{ 
-    margin-left: 3px; 
-    margin-top: 3px; 
+    padding: 1px;
     border: 1px solid silver; 
-    border-radius: 4px; 
+    border-radius: 6px; 
     background-color: {color}; 
     }}"""
 
     def __init__(self, tag: str):
         super().__init__(parent=None)
-        self.setContentsMargins(8, 0, 0, 0)
+        self.setContentsMargins(6, 0, 0, 0)
         self.setStyleSheet(self.qss.format(color="gainsboro"))
 
         self._label = QLabel(tag)
-        self._label.setMinimumSize(10, 23)
-        self._label.setContentsMargins(0, 0, 0, 0)
+        self._label.setContentsMargins(0, 0, 3, 0)
         self._label.setWordWrap(False)
-        self._label.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
+        self._label.setAlignment(Qt.AlignVCenter)
 
         self._button = QPushButton("×")
         self._button.setFixedWidth(20)
         self._button.setStyleSheet(
-            "QPushButton { margin-left: 2px; border: none; font: bold normal 14px; };"
+            "QPushButton { border: none; font: bold normal 14px; };"
             "QPushButton:hover { border: none; };"
             "QPushButton:pressed { border: none; };"
         )
@@ -78,6 +77,8 @@ class TagLabel(QFrame):
         self.setStyleSheet(self.qss.format(color="gainsboro"))
         return super().leaveEvent(event)
 
+    def sizeHint(self):
+        return QSize(30, 25)
 
 class FlowLayout(QLayout):
     heightChanged = Signal(int)
@@ -85,7 +86,7 @@ class FlowLayout(QLayout):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setSpacing(0)
+        self.setSpacing(3)
         self._item_list = []
 
     def __del__(self):
@@ -139,12 +140,12 @@ class FlowLayout(QLayout):
         return size
 
     def _do_layout(self, rect, test_only):
-        x = rect.x()
-        y = rect.y()
         line_height = 0
         spacing = self.spacing()
+        x = rect.x() + spacing
+        y = rect.y() + spacing
         for item in self._item_list:
-            style = item.widget().style()
+            style: QStyle = item.widget().style()
             layout_spacing_x = style.layoutSpacing(
                 QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal
             )
@@ -154,49 +155,41 @@ class FlowLayout(QLayout):
             space_x = spacing + layout_spacing_x
             space_y = spacing + layout_spacing_y
             next_x = x + item.sizeHint().width() + space_x
-            if next_x - space_x > rect.right() and line_height > 0:
-                x = rect.x()
+            if next_x > rect.right() and line_height > 0:
+                x = rect.x() + spacing
                 y = y + line_height + space_y
                 next_x = x + item.sizeHint().width() + space_x
                 line_height = 0
             if not test_only:
-                item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
+                item.setGeometry(item_rect := QRect(QPoint(x, y), item.sizeHint()))
                 if isinstance(item.widget(), TagLine):
-                    self.heightChanged.emit(y + item.sizeHint().height() + 6)
-                    line_rect = QRect(QPoint(x, y), item.sizeHint())
-                    line_rect.setRight(rect.right() - space_x - 3)
-                    item.setGeometry(line_rect)
+                    self.heightChanged.emit(item_rect.bottom() + spacing + 1)
+                    item_rect.setRight(rect.right() - space_x)
+                    item.setGeometry(item_rect)
             x = next_x
             line_height = max(line_height, item.sizeHint().height())
         if self.count() > 1:
-            self.widthChanged.emit(max(i.widget().width() for i in self._item_list[:-1]) + 3)
+            self.widthChanged.emit(max(i.widget().width() for i in self._item_list[:-1]) + spacing * 2)
         return y + line_height - rect.y()
 
-
-class Box(QTextEdit):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setContentsMargins(0, 0, 0, 0)
-        self.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
 class TagEdit(QFrame):
     tagChanged = Signal(list)
 
     def __init__(self, tags: list[str] = None):
         super().__init__(parent=None)
-        self._box = Box(self)
-        self._box.setFocusProxy(self)
+        self._box = QTextEdit(self)
+        self._box.setContentsMargins(0, 0, 0, 0)
+        self._box.setReadOnly(True)
 
         self._tags: dict[str, TagLabel] = dict()
-        self.setStyleSheet("TagEdit { padding: 3px; }")
 
         self._line = TagLine()
         self._line.returnPressed.connect(self._append_tag)
         self._line.editingFinished.connect(self._append_tag)
 
-        self._box.focusPolicy()
-
         self.setLayout(FlowLayout())
+        self.layout().setContentsMargins(0, 0, 0, 2)
         self.layout().addWidget(self._line)
 
         self.layout().heightChanged.connect(self.setMinimumHeight)
@@ -230,7 +223,7 @@ class TagEdit(QFrame):
     def _add_tag(self, tag: str):
         if not tag or tag in self._tags:
             return
-        tag_label = TagLabel(tag)
+        tag_label = TagLabel(tag.strip())
         tag_label.deleteTag.connect(self._del_tag)
         self._tags[tag] = tag_label
         self.layout().addWidget(tag_label)
