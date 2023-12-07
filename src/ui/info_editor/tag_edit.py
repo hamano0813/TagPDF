@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt, QPoint, QRect, QSize, QEvent, Signal
-from PySide6.QtWidgets import QFrame, QLabel, QPushButton, QLineEdit, QCompleter, QLayout, QHBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QTextEdit, QFrame, QLabel, QPushButton, QLineEdit, QCompleter, QLayout, QHBoxLayout, QSizePolicy
 
 
 class TagLine(QLineEdit):
@@ -173,25 +173,28 @@ class FlowLayout(QLayout):
         return y + line_height - rect.y()
 
 
+class Box(QTextEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
 class TagEdit(QFrame):
     tagChanged = Signal(list)
 
     def __init__(self, tags: list[str] = None):
         super().__init__(parent=None)
+        self._box = Box(self)
+        self._box.setFocusProxy(self)
 
         self._tags: dict[str, TagLabel] = dict()
-        self.setStyleSheet("""
-            TagEdit { 
-            padding: 3px;
-            border-width:1px; 
-            border-style: solid; 
-            border-color:gray; 
-            background-color: white; 
-            }""")
+        self.setStyleSheet("TagEdit { padding: 3px; }")
 
         self._line = TagLine()
         self._line.returnPressed.connect(self._append_tag)
         self._line.editingFinished.connect(self._append_tag)
+
+        self._box.focusPolicy()
 
         self.setLayout(FlowLayout())
         self.layout().addWidget(self._line)
@@ -201,6 +204,10 @@ class TagEdit(QFrame):
 
         if tags:
             self.tags = tags
+
+    def resizeEvent(self, event):
+        self._box.setFixedSize(self.size())
+        super().resizeEvent(event)
 
     @property
     def tags(self) -> list[str]:
@@ -238,11 +245,4 @@ class TagEdit(QFrame):
             self._tags[tag]._delete()
 
     def setEnabled(self, enable: bool):
-        super().setEnabled(enable)
         self._line.setEnabled(enable)
-
-
-if __name__ == '__main__':
-    import platform
-    # print os version ,eg win11 win10 win7
-    print(platform.version())
