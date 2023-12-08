@@ -4,6 +4,7 @@ import zipfile
 
 from PySide6.QtWidgets import QSplitter, QTabWidget, QFileDialog
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -14,6 +15,7 @@ from .file_table import FileTable
 from .pdf_view import PdfView
 from .info_editor import InfoEditor
 from core.model import Base, TAG
+from res import *
 
 
 class MainWindow(QSplitter):
@@ -24,6 +26,7 @@ class MainWindow(QSplitter):
         self.sessionmaker = sessionmaker(bind=engine)
 
         self.setWindowTitle('TagPDF v1.0')
+        self.setWindowIcon(QIcon(":/icon.png"))
         self.setOrientation(Qt.Horizontal)
         self.setHandleWidth(1)
         self.setChildrenCollapsible(False)
