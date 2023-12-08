@@ -11,7 +11,7 @@ class FileModel(QAbstractTableModel):
         super().__init__(parent)
         self.files = []
         self.titles = []
-        self.columns = [self.tr('File Path'), self.tr('Title')]
+        self.columns = [self.tr('文件路径'), self.tr('标题')]
         self.session = session_maker()
 
     def headerData(self, section, orientation, role=...):

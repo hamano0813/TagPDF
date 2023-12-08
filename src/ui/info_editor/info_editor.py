@@ -34,10 +34,10 @@ class InfoEditor(QFrame):
         self.tags.setContentsMargins(0, 0, 0, 0)
 
         self.setLayout(QFormLayout())
-        self.layout().addRow(self.tr("Title"), self.title)
-        self.layout().addRow(self.tr("Publisher"), self.publisher)
-        self.layout().addRow(self.tr("Release"), self.release)
-        self.layout().addRow(self.tr("Tags"), self.tags)
+        self.layout().addRow(self.tr("标题"), self.title)
+        self.layout().addRow(self.tr("发布"), self.publisher)
+        self.layout().addRow(self.tr("年份"), self.release)
+        self.layout().addRow(self.tr("标签"), self.tags)
 
         self._enable(False)
         self._connect()
@@ -126,6 +126,7 @@ class InfoEditor(QFrame):
                 self.pdf.tags.remove(pdf_tags[tag])
         self.session.add(self.pdf)
         self.session.commit()
+        self.infoChanged.emit()
         self.refresh_completer()
 
     def refresh_completer(self):

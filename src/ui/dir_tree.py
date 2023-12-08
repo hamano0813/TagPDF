@@ -72,7 +72,9 @@ class DirTree(QFrame):
     def __init__(self, parent=None, root: str = '/'):
         super().__init__(parent)
         self.tree_view = TreeView(root=root)
-        self.scan_btn = QPushButton(self.tr('Scan PDF'))
+        self.tree_view.setStyleSheet('QTreeView { border: none; }')
+        self.scan_btn = QPushButton(self.tr('扫描选中路径'))
+        self.scan_btn.setFixedHeight(50)
         self.scan_btn.clicked.connect(self.tree_view.scan_dir)
         self.rootChanged = self.tree_view.rootChanged
         self.selectChanged = self.tree_view.selectChanged
