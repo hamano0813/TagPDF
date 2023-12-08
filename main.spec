@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-
+import os.path
 
 block_cipher = None
 
@@ -23,7 +23,6 @@ a = Analysis(
 binaries = []
 binaries_exclude = {
     'opengl32sw.dll',
-    'Qt6Network.dll',
     'Qt6OpenGL.dll',
     'Qt6Qml.dll',
     'Qt6QmlModels.dll',
@@ -75,27 +74,26 @@ datas = []
 for (dest, source, kind) in a.datas:
     if os.path.split(source)[1].startswith('qtbase_'):
         continue
+    if os.path.splitext(source)[1] == '.qm':
+        continue
     datas.append((dest, source, kind))
 
 a.datas = datas
+print(a.datas)
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
     [],
+    exclude_binaries=True,
     name='TagPDF',
     icon='src/icon.ico',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
@@ -103,4 +101,14 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     version='version.txt',
+)
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='TagPDF',
 )

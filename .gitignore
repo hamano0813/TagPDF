@@ -1,4 +1,8 @@
 /venv/
-/src/pdf.db3
+/build/
+/dist/
+/.idea/*
+upx.exe
+upx.1
 *.pyc
 *.db3
