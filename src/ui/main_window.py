@@ -31,7 +31,7 @@ class MainWindow(QSplitter):
         self.setHandleWidth(1)
         self.setChildrenCollapsible(False)
         self.setContentsMargins(0, 0, 0, 0)
-        self.setMinimumSize(1600, 900)
+        self.setMinimumSize(1440, 720)
 
         self.dir_tree = DirTree(root='C:/')
         self.pdf_filter = PdfFilter(session_maker=self.sessionmaker)
@@ -73,11 +73,13 @@ class MainWindow(QSplitter):
         self.pdf_filter.check_changed()
 
     def export(self):
+        pdfs = self.file_table.model.files
+        if not pdfs:
+            return
         path = QFileDialog.getExistingDirectory(self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop')
         if not path:
             return
-        path += f"/{time.strftime('%Y%m%d%H%M%S', time.localtime())}.zip"
-        pdfs = self.file_table.model.files
+        path += f"/{time.strftime('PDF_%Y%m%d%H%M%S', time.localtime())}.zip"
 
         zip_file = zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED)
         for pdf in pdfs:

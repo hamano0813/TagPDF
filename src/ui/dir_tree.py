@@ -22,6 +22,10 @@ class FilterProxyModel(QSortFilterProxyModel):
             return False
         return super().filterAcceptsRow(row, parent)
 
+    def lessThan(self, source_left, source_right):
+        left: str = self.sourceModel().filePath(source_left)
+        right: str = self.sourceModel().filePath(source_right)
+        return left < right
 
 class DirModel(QFileSystemModel):
     def __init__(self, root):
@@ -74,7 +78,8 @@ class DirTree(QFrame):
         self.tree_view = TreeView(root=root)
         self.tree_view.setStyleSheet('QTreeView { border: none; }')
         self.scan_btn = QPushButton(self.tr('扫描选中路径'))
-        self.scan_btn.setFixedHeight(50)
+        self.scan_btn.setFixedHeight(40)
+        self.scan_btn.setStyleSheet('QPushButton { font-size: 14px; }')
         self.scan_btn.clicked.connect(self.tree_view.scan_dir)
         self.rootChanged = self.tree_view.rootChanged
         self.selectChanged = self.tree_view.selectChanged
