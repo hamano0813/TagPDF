@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from .dir_tree import DirTree
-from .check_filter import CheckFilter
+from .pdf_filter import PdfFilter
 from .file_table import FileTable
 from .pdf_view import PdfView
 from .info_editor import InfoEditor
@@ -31,10 +31,10 @@ class MainWindow(QSplitter):
         self.setMinimumSize(1600, 900)
 
         self.dir_tree = DirTree(root='C:/')
-        self.check_filter = CheckFilter(session_maker=self.sessionmaker)
+        self.pdf_filter = PdfFilter(session_maker=self.sessionmaker)
 
         left_tab = QTabWidget()
-        left_tab.addTab(self.check_filter, '过滤查询')
+        left_tab.addTab(self.pdf_filter, '过滤查询')
         left_tab.addTab(self.dir_tree, '扫描添加')
         self.addWidget(left_tab)
 
@@ -52,7 +52,6 @@ class MainWindow(QSplitter):
         self.right_splitter.addWidget(self.info_editor)
         self.addWidget(self.right_splitter)
 
-        # 调整splitter
         self.setStretchFactor(0, 1)
         self.setStretchFactor(1, 5)
         self.setStretchFactor(2, 2)
@@ -61,11 +60,14 @@ class MainWindow(QSplitter):
         self.file_table.selectChanged.connect(self.pdf_view.document().load)
         self.file_table.selectChanged.connect(self.info_editor.set_path)
         self.info_editor.infoChanged.connect(self.file_table.model.refresh_titles)
-        self.info_editor.infoChanged.connect(self.check_filter.runtime_refresh)
-        self.check_filter.selectChanged.connect(self.file_table.set_files)
-        self.check_filter.export_btn.clicked.connect(self.export)
+        self.info_editor.infoChanged.connect(lambda :self.pdf_filter.refresh(True))
+        self.pdf_filter.filterChanged.connect(self.file_table.set_files)
 
-        self.check_filter.refresh()
+        self.dir_tree.scan_btn.clicked.connect(self.pdf_filter.clear)
+        self.pdf_filter.export_btn.clicked.connect(self.export)
+
+        self.pdf_filter.refresh()
+        self.pdf_filter.check_changed()
 
     def export(self):
         path = QFileDialog.getExistingDirectory(self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop')

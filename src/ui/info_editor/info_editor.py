@@ -81,6 +81,10 @@ class InfoEditor(QFrame):
                 self.pdf.title = title
                 self.session.add(self.pdf)
                 self.session.commit()
+            else:
+                self.pdf.title = title
+                self.session.add(self.pdf)
+                self.session.commit()
         elif self.pdf:
             self.clear()
             self._enable(False)
