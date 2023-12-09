@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 from .scan_frame import ScanFrame
 from .pdf_filter import PdfFilter
 from .file_table import FileTable
-from .pdf_view import PdfView
+from .preview_frame import PreviewFrame
 from .info_editor import InfoEditor
 from core.model import Base, TAG
 from res import *
@@ -48,10 +48,10 @@ class MainWindow(QSplitter):
         self.right_splitter.setOrientation(Qt.Vertical)
         self.right_splitter.setHandleWidth(1)
 
-        self.pdf_view = PdfView()
+        self.preview_frame = PreviewFrame()
         self.info_editor = InfoEditor(session_maker=self.sessionmaker)
 
-        self.right_splitter.addWidget(self.pdf_view)
+        self.right_splitter.addWidget(self.preview_frame)
         self.right_splitter.addWidget(self.info_editor)
         self.addWidget(self.right_splitter)
 
@@ -59,10 +59,10 @@ class MainWindow(QSplitter):
         self.setStretchFactor(1, 5)
         self.setStretchFactor(2, 2)
 
-        self.scan_frame.selectChanged.connect(self.file_table.set_files)
-        self.file_table.selectChanged.connect(self.pdf_view.document().load)
+        self.scan_frame.folderChanged.connect(self.file_table.set_files)
+        self.file_table.selectChanged.connect(self.preview_frame.document().load)
         self.file_table.selectChanged.connect(self.info_editor.set_path)
-        self.info_editor.infoChanged.connect(self.file_table.model.refresh_titles)
+        self.info_editor.infoChanged.connect(self.file_table._model.refresh_titles)
         self.info_editor.infoChanged.connect(lambda :self.pdf_filter.refresh(True))
         self.pdf_filter.filterChanged.connect(self.file_table.set_files)
 
@@ -73,7 +73,7 @@ class MainWindow(QSplitter):
         self.pdf_filter.check_changed()
 
     def export(self):
-        pdfs = self.file_table.model.files
+        pdfs = self.file_table._model._paths
         if not pdfs:
             return
         path = QFileDialog.getExistingDirectory(self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop')
@@ -90,7 +90,7 @@ class MainWindow(QSplitter):
         session = self.sessionmaker()
         tags = session.query(TAG).all()
         for tag in tags:
-            if not tag.pdf:
+            if not tag.pdfs:
                 session.delete(tag)
         session.commit()
         session.close()

@@ -54,8 +54,8 @@ class FileTable(QTableView):
 
     def __init__(self, parent=None, session_maker: sessionmaker = None):
         super().__init__(parent)
-        self.model = FileModel(session_maker=session_maker)
-        self.setModel(self.model)
+        self._model = FileModel(session_maker=session_maker)
+        self.setModel(self._model)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSelectionMode(QAbstractItemView.SingleSelection)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -65,13 +65,13 @@ class FileTable(QTableView):
         self.clicked.connect(self.select_path)
 
     def set_files(self, files):
-        self.model.set_files(files)
+        self._model.set_files(files)
 
     def refresh(self):
-        self.model.refresh_titles()
+        self._model.refresh_titles()
 
     def select_path(self):
         index = self.currentIndex()
         if not index.isValid():
             return
-        self.selectChanged.emit(self.model.files[index.row()])
+        self.selectChanged.emit(self._model.files[index.row()])

@@ -27,7 +27,7 @@ class ProxyModel(QtCore.QSortFilterProxyModel):
 
 
 class ScanFrame(QtWidgets.QFrame):
-    selectChanged = QtCore.Signal(list)
+    folderChanged = QtCore.Signal(list)
 
     def __init__(self, root):
         super().__init__(parent=None)
@@ -65,4 +65,4 @@ class ScanFrame(QtWidgets.QFrame):
         index = self._proxy.mapToSource(self._tree.currentIndex())
         folder = self._model.filePath(index)
         paths = functions.scan_pdf(folder)
-        self.selectChanged.emit(paths)
+        self.folderChanged.emit(paths)
