@@ -9,7 +9,7 @@ from PySide6.QtGui import QIcon
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from .dir_tree import DirTree
+from .scan_frame import ScanFrame
 from .pdf_filter import PdfFilter
 from .file_table import FileTable
 from .pdf_view import PdfView
@@ -33,12 +33,12 @@ class MainWindow(QSplitter):
         self.setContentsMargins(0, 0, 0, 0)
         self.setMinimumSize(1440, 720)
 
-        self.dir_tree = DirTree(root='C:/')
+        self.scan_frame = ScanFrame(root='/')
         self.pdf_filter = PdfFilter(session_maker=self.sessionmaker)
 
         left_tab = QTabWidget()
         left_tab.addTab(self.pdf_filter, '过滤查询')
-        left_tab.addTab(self.dir_tree, '扫描添加')
+        left_tab.addTab(self.scan_frame, '扫描添加')
         self.addWidget(left_tab)
 
         self.file_table = FileTable(session_maker=self.sessionmaker)
@@ -59,14 +59,14 @@ class MainWindow(QSplitter):
         self.setStretchFactor(1, 5)
         self.setStretchFactor(2, 2)
 
-        self.dir_tree.selectChanged.connect(self.file_table.set_files)
+        self.scan_frame.selectChanged.connect(self.file_table.set_files)
         self.file_table.selectChanged.connect(self.pdf_view.document().load)
         self.file_table.selectChanged.connect(self.info_editor.set_path)
         self.info_editor.infoChanged.connect(self.file_table.model.refresh_titles)
         self.info_editor.infoChanged.connect(lambda :self.pdf_filter.refresh(True))
         self.pdf_filter.filterChanged.connect(self.file_table.set_files)
 
-        self.dir_tree.scan_btn.clicked.connect(self.pdf_filter.clear)
+        self.scan_frame._btn.clicked.connect(self.pdf_filter.clear)
         self.pdf_filter.export_btn.clicked.connect(self.export)
 
         self.pdf_filter.refresh()
