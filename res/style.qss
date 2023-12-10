@@ -39,3 +39,8 @@
     font: bold normal 14px;
     width: 20px;
 }
+
+#LineEdit {
+    padding-left: 8px;
+    padding-right: 5px;
+}

@@ -6,10 +6,12 @@ class YearSpin(QtWidgets.QSpinBox):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setObjectName("YearSpin")
         self.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
-        self.setRange(*YearSpin.RANGE)
         self.setWrapping(True)
         self.lineEdit().setValidator(QtGui.QRegularExpressionValidator(r'^\d{0,4}$'))
+
+        self.setRange(*YearSpin.RANGE)
 
     def textFromValue(self, val) -> str:
         if val == YearSpin.RANGE[0]:

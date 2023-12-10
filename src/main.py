@@ -9,6 +9,5 @@ if __name__ == '__main__':
     window = MainWindow()
     window.show()
     stylesheet = open('../res/style.qss', 'r', encoding='utf-8').read()
-    print(stylesheet)
     app.setStyleSheet(stylesheet)
     sys.exit(app.exec())

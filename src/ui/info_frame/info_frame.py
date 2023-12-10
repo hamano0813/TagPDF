@@ -1,15 +1,12 @@
-from typing import Optional
-
-from PySide6.QtCore import Signal, QMetaMethod
-from PySide6.QtWidgets import QFrame, QLineEdit, QFormLayout
+from PySide6 import QtWidgets, QtCore
 
 from core.model import PDF, TAG
 from .tag_edit import TagEdit
 from .year_spin import YearSpin
 
 
-class InfoFrame(QFrame):
-    infoChanged = Signal()
+class InfoFrame(QtWidgets.QFrame):
+    infoChanged = QtCore.Signal()
 
     def __init__(self, session_maker=None):
         super().__init__(parent=None)
@@ -18,23 +15,16 @@ class InfoFrame(QFrame):
         self.path = ''
         self.pdf: PDF | None = None
 
-        self.tit = QLineEdit()
-        self.pub = QLineEdit()
-        self.rls = YearSpin()
         self.tags = TagEdit()
+        self.tit = self._create_line()
+        self.num = self._create_line()
+        self.pub = self._create_line()
+        self.rls = YearSpin()
+        self.rls.setFixedHeight(self.tags.sizeHint().height())
 
-        self.tit.setFixedHeight(31)
-        self.pub.setFixedHeight(31)
-        self.rls.setFixedHeight(31)
-        self.tit.setStyleSheet('QLineEdit { padding-left: 8px; padding-right: 5px; }')
-        self.pub.setStyleSheet('QLineEdit { padding-left: 8px; padding-right: 5px; }')
-        self.tit.setContentsMargins(0, 0, 0, 0)
-        self.pub.setContentsMargins(0, 0, 0, 0)
-        self.rls.setContentsMargins(0, 0, 0, 0)
-        self.tags.setContentsMargins(0, 0, 0, 0)
-
-        self.setLayout(QFormLayout())
+        self.setLayout(QtWidgets.QFormLayout())
         self.layout().addRow("标题", self.tit)
+        self.layout().addRow("文号", self.num)
         self.layout().addRow("发布", self.pub)
         self.layout().addRow("年份", self.rls)
         self.layout().addRow("标签", self.tags)
@@ -42,6 +32,13 @@ class InfoFrame(QFrame):
         self._enable(False)
         self._connect()
         self.refresh_completer()
+
+    def _create_line(self):
+        line = QtWidgets.QLineEdit()
+        line.setObjectName('LineEdit')
+        line.setContentsMargins(0, 0, 0, 0)
+        line.setFixedHeight(self.tags.sizeHint().height())
+        return line
 
     def _enable(self, enable: bool):
         self.pub.setReadOnly(not enable)

@@ -141,6 +141,7 @@ class TagEdit(QtWidgets.QFrame):
         self._box = QtWidgets.QTextEdit(self)
         self._box.setContentsMargins(0, 0, 0, 0)
         self._box.setReadOnly(True)
+        self._box.setFixedHeight(self.sizeHint().height())
 
         self._line = QtWidgets.QLineEdit()
         self._line.setObjectName("TagLine")
