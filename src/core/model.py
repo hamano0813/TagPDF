@@ -10,16 +10,16 @@ class PDF(Base):  # PDF表
     __tablename__ = 'pdf'
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment='ID')
     fp: Mapped[str] = mapped_column(String(250), nullable=True, unique=True, comment='file path')
-    title: Mapped[str] = mapped_column(String(250), nullable=True, comment='title')
-    number: Mapped[str] = mapped_column(String(250), nullable=True, comment='number')
-    publisher: Mapped[str] = mapped_column(String(250), nullable=True, comment='publisher')
-    release: Mapped[int] = mapped_column(Integer, nullable=True, comment='release')
+    tit: Mapped[str] = mapped_column(String(250), nullable=True, comment='title')
+    num: Mapped[str] = mapped_column(String(250), nullable=True, comment='number')
+    pub: Mapped[str] = mapped_column(String(250), nullable=True, comment='publisher')
+    rls: Mapped[int] = mapped_column(Integer, nullable=True, comment='release')
 
     tags: Mapped[list["TAG"]] = relationship("TAG", secondary="pdf_tag", back_populates="pdf", uselist=True)
 
     def __repr__(self):
-        return (f"<PDF(fp='{self.fp}', title='{self.title}', number='{self.number}',"
-                f" publisher='{self.publisher}', release='{self.release}')>"
+        return (f"<PDF(fp='{self.fp}', title='{self.tit}', number='{self.num}',"
+                f" publisher='{self.pub}', release='{self.rls}')>"
                 f" tag='{self.tags}'>")
 
 class TAG(Base):  # TAG表

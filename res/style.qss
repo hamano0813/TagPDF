@@ -12,9 +12,6 @@
 #TagPopup {
     margin-left: 5px;
 }
-#TagPopup QScrollBar {
-    width: 0px;
-}
 /* TagLabel of TagEdit */
 #TagLabel[hover="true"] {
     margin: 0px;

@@ -8,56 +8,56 @@ from .tag_edit import TagEdit
 from .year_spin import YearSpin
 
 
-class InfoEditor(QFrame):
+class InfoFrame(QFrame):
     infoChanged = Signal()
 
-    def __init__(self, parent=None, session_maker=None):
-        super().__init__(parent)
+    def __init__(self, session_maker=None):
+        super().__init__(parent=None)
         self.setContentsMargins(0, 0, 0, 0)
         self.session = session_maker()
         self.path = ''
-        self.pdf: Optional[PDF] = None
+        self.pdf: PDF | None = None
 
-        self.title = QLineEdit()
-        self.publisher = QLineEdit()
-        self.release = YearSpin()
+        self.tit = QLineEdit()
+        self.pub = QLineEdit()
+        self.rls = YearSpin()
         self.tags = TagEdit()
 
-        self.title.setFixedHeight(31)
-        self.publisher.setFixedHeight(31)
-        self.release.setFixedHeight(31)
-        self.title.setStyleSheet('QLineEdit { padding-left: 8px; padding-right: 5px; }')
-        self.publisher.setStyleSheet('QLineEdit { padding-left: 8px; padding-right: 5px; }')
-        self.title.setContentsMargins(0, 0, 0, 0)
-        self.publisher.setContentsMargins(0, 0, 0, 0)
-        self.release.setContentsMargins(0, 0, 0, 0)
+        self.tit.setFixedHeight(31)
+        self.pub.setFixedHeight(31)
+        self.rls.setFixedHeight(31)
+        self.tit.setStyleSheet('QLineEdit { padding-left: 8px; padding-right: 5px; }')
+        self.pub.setStyleSheet('QLineEdit { padding-left: 8px; padding-right: 5px; }')
+        self.tit.setContentsMargins(0, 0, 0, 0)
+        self.pub.setContentsMargins(0, 0, 0, 0)
+        self.rls.setContentsMargins(0, 0, 0, 0)
         self.tags.setContentsMargins(0, 0, 0, 0)
 
         self.setLayout(QFormLayout())
-        self.layout().addRow(self.tr("标题"), self.title)
-        self.layout().addRow(self.tr("发布"), self.publisher)
-        self.layout().addRow(self.tr("年份"), self.release)
-        self.layout().addRow(self.tr("标签"), self.tags)
+        self.layout().addRow("标题", self.tit)
+        self.layout().addRow("发布", self.pub)
+        self.layout().addRow("年份", self.rls)
+        self.layout().addRow("标签", self.tags)
 
         self._enable(False)
         self._connect()
         self.refresh_completer()
 
     def _enable(self, enable: bool):
-        self.publisher.setReadOnly(not enable)
-        self.release.setEnabled(enable)
+        self.pub.setReadOnly(not enable)
+        self.rls.setEnabled(enable)
         self.tags.setEnabled(enable)
 
     def _connect(self):
-        self.title.editingFinished.connect(self.title_changed)
-        self.publisher.editingFinished.connect(self.publisher_changed)
-        self.release.valueChanged.connect(self.release_changed)
+        self.tit.editingFinished.connect(self.title_changed)
+        self.pub.editingFinished.connect(self.publisher_changed)
+        self.rls.valueChanged.connect(self.release_changed)
         self.tags.tagChanged.connect(self.tags_changed)
 
     def clear(self):
-        self.title.clear()
-        self.publisher.clear()
-        self.release.clear()
+        self.tit.clear()
+        self.pub.clear()
+        self.rls.clear()
         self.tags.clear()
 
     def set_path(self, path: str):
@@ -65,24 +65,24 @@ class InfoEditor(QFrame):
         self.pdf = self.session.query(PDF).filter(PDF.fp == path).one_or_none()
         if self.pdf:
             self._enable(True)
-            self.title.setText(self.pdf.title)
-            self.publisher.setText(self.pdf.publisher)
-            self.release.setValue(self.pdf.release)
+            self.tit.setText(self.pdf.tit)
+            self.pub.setText(self.pdf.pub)
+            self.rls.setValue(self.pdf.rls)
             self.tags.tags = [t.tag for t in self.pdf.tags]
         else:
             self.clear()
             self._enable(False)
 
     def title_changed(self):
-        if title := self.title.text().strip():
+        if title := self.tit.text().strip():
             if not self.pdf and self.path:
                 self.pdf = PDF(fp=self.path)
                 self._enable(True)
-                self.pdf.title = title
+                self.pdf.tit = title
                 self.session.add(self.pdf)
                 self.session.commit()
             else:
-                self.pdf.title = title
+                self.pdf.tit = title
                 self.session.add(self.pdf)
                 self.session.commit()
         elif self.pdf:
@@ -96,12 +96,12 @@ class InfoEditor(QFrame):
     def publisher_changed(self):
         if not self.pdf:
             return
-        if publisher := self.publisher.text().strip():
-            self.pdf.publisher = publisher
+        if publisher := self.pub.text().strip():
+            self.pdf.pub = publisher
             self.session.add(self.pdf)
             self.session.commit()
         else:
-            self.pdf.publisher = None
+            self.pdf.pub = None
             self.session.add(self.pdf)
             self.session.commit()
         self.infoChanged.emit()
@@ -109,7 +109,7 @@ class InfoEditor(QFrame):
     def release_changed(self):
         if not self.pdf:
             return
-        self.pdf.release = self.release.value()
+        self.pdf.rls = self.rls.value()
         self.session.add(self.pdf)
         self.session.commit()
         self.infoChanged.emit()

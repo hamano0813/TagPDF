@@ -13,7 +13,7 @@ from .scan_frame import ScanFrame
 from .pdf_filter import PdfFilter
 from .file_table import FileTable
 from .preview_frame import PreviewFrame
-from .info_editor import InfoEditor
+from .info_frame import InfoFrame
 from core.model import Base, TAG
 from res import *
 
@@ -49,7 +49,7 @@ class MainWindow(QSplitter):
         self.right_splitter.setHandleWidth(1)
 
         self.preview_frame = PreviewFrame()
-        self.info_editor = InfoEditor(session_maker=self.sessionmaker)
+        self.info_editor = InfoFrame(session_maker=self.sessionmaker)
 
         self.right_splitter.addWidget(self.preview_frame)
         self.right_splitter.addWidget(self.info_editor)

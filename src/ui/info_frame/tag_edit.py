@@ -177,7 +177,6 @@ class TagEdit(QtWidgets.QFrame):
         if not tag or tag in self._tags:
             return
         tag_label = TagLabel(tag.strip())
-        tag_label.deleteTag.connect(self._del_tag)
         tag_label.tag_btn.clicked.connect(lambda: self._del_tag(tag))
         self._tags[tag] = tag_label
         self.layout().addWidget(tag_label)
@@ -185,9 +184,6 @@ class TagEdit(QtWidgets.QFrame):
 
     def _del_tag(self, tag: str) -> None:
         tag_label = self._tags.pop(tag)
-        tag_label.tag_text.deleteLater()
-        tag_label.tag_btn.clicked.disconnect()
-        tag_label.tag_btn.deleteLater()
         self.layout().removeWidget(tag_label)
         tag_label.deleteLater()
         self.tagChanged.emit(self.tags)
@@ -202,8 +198,6 @@ class TagEdit(QtWidgets.QFrame):
         completer = QtWidgets.QCompleter(tags)
         completer.setCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
         completer.setFilterMode(QtCore.Qt.MatchFlag.MatchContains)
-        completer.setMaxVisibleItems(10)
-        completer.popup().verticalScrollBar().hide()
+        completer.setMaxVisibleItems(5)
         completer.popup().setObjectName("TagPopup")
-        completer.popup().verticalScrollBar().setStyleSheet("QScrollBar { width: 0px; }")
         self._line.setCompleter(completer)

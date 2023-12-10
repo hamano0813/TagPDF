@@ -11,7 +11,7 @@ class FileModel(QAbstractTableModel):
         super().__init__(parent)
         self.files = []
         self.titles = []
-        self.columns = [self.tr('文件路径'), self.tr('标题')]
+        self.columns = ['文件路径', '标题']
         self.session = session_maker()
 
     def headerData(self, section, orientation, role=...):
@@ -43,7 +43,7 @@ class FileModel(QAbstractTableModel):
         self.titles = []
         for file in self.files:
             if pdf := self.session.query(PDF).filter_by(fp=file).all():
-                self.titles.append(pdf[0].title)
+                self.titles.append(pdf[0].tit)
             else:
                 self.titles.append('')
         self.layoutChanged.emit()

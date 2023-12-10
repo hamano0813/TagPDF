@@ -169,8 +169,8 @@ class PdfFilter(QFrame):
         release = list(map(int, self.rel.selected))
         tags = self.tag.selected
         pdfs = self.session.query(PDF).filter(
-            PDF.publisher.in_(publisher) if publisher else True,
-            PDF.release.in_(release) if release else True,
+            PDF.pub.in_(publisher) if publisher else True,
+            PDF.rls.in_(release) if release else True,
             PDF.tags.any(TAG.tag.in_(tags)) if tags else True,
         ).all()
         paths = []
@@ -183,9 +183,9 @@ class PdfFilter(QFrame):
 
     def refresh(self, runtime: bool = False):
         self.pub.set_checks(
-            [i[0] for i in self.session.query(PDF.publisher).distinct().order_by(PDF.publisher) if i[0]], runtime)
+            [i[0] for i in self.session.query(PDF.pub).distinct().order_by(PDF.pub) if i[0]], runtime)
         self.rel.set_checks(
-            [str(i[0]) for i in self.session.query(PDF.release).distinct().order_by(PDF.release) if i[0]], runtime)
+            [str(i[0]) for i in self.session.query(PDF.rls).distinct().order_by(PDF.rls) if i[0]], runtime)
         self.tag.set_checks([i[0] for i in self.session.query(TAG.tag).filter(TAG.pdf).distinct().order_by(TAG.tag)],
                             runtime)
 
