@@ -1,1 +1,44 @@
-#DirTree { border: none; };
+#DirTree {
+    border: none;
+}
+
+/* TagLine of TagEdit */
+#TagLine {
+    margin-left: 8px;
+    border: none;
+    background-color: transparent;
+}
+/* TagPopup of TagLine */
+#TagPopup {
+    margin-left: 5px;
+}
+#TagPopup QScrollBar {
+    width: 0px;
+}
+/* TagLabel of TagEdit */
+#TagLabel[hover="true"] {
+    margin: 0px;
+    padding: 1px;
+    border: 1px solid silver;
+    border-radius: 6px;
+    background-color: silver;
+}
+#TagLabel[hover="false"] {
+    margin: 0px;
+    padding: 1px;
+    border: 1px solid silver;
+    border-radius: 6px;
+    background-color: gainsboro;
+}
+/* TagText of TagLabel */
+#TagText { 
+    margin-left: 5px;
+}
+/* TagButton of TagLabel */
+#TagButton,
+#TagButton:hover,
+#TagButton:pressed {
+    border: none;
+    font: bold normal 14px;
+    width: 20px;
+}

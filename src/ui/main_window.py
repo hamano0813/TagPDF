@@ -73,7 +73,7 @@ class MainWindow(QSplitter):
         self.pdf_filter.check_changed()
 
     def export(self):
-        pdfs = self.file_table._model._paths
+        pdfs = self.file_table._model.files
         if not pdfs:
             return
         path = QFileDialog.getExistingDirectory(self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop')
@@ -90,7 +90,7 @@ class MainWindow(QSplitter):
         session = self.sessionmaker()
         tags = session.query(TAG).all()
         for tag in tags:
-            if not tag.pdfs:
+            if not tag.pdf:
                 session.delete(tag)
         session.commit()
         session.close()

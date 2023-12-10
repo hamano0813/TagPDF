@@ -1,7 +1,7 @@
 import os
 
-from PySide6.QtWidgets import QCheckBox, QGroupBox, QPushButton, QFrame, QLayout, QVBoxLayout, QStyle, QSizePolicy
 from PySide6.QtCore import Qt, QSize, QRect, QPoint, Signal
+from PySide6.QtWidgets import QCheckBox, QGroupBox, QPushButton, QFrame, QLayout, QVBoxLayout, QStyle, QSizePolicy
 
 from core.model import PDF, TAG
 
@@ -112,7 +112,7 @@ class CheckGroup(QGroupBox):
     def checks(self):
         return [check.text() for check in self._checks]
 
-    def set_checks(self, checks: list[str], runtime: bool=False):
+    def set_checks(self, checks: list[str], runtime: bool = False):
         for exist_check in self._checks:
             if exist_check.text() not in checks:
                 exist_check.stateChanged.disconnect()
@@ -123,7 +123,7 @@ class CheckGroup(QGroupBox):
             if check not in self.checks():
                 self.add_check(check, runtime)
 
-    def add_check(self, check_text: str, checked: bool=False):
+    def add_check(self, check_text: str, checked: bool = False):
         check = QCheckBox(check_text)
         check.setChecked(checked)
         check.stateChanged.connect(self.checkChanged.emit)
@@ -136,6 +136,7 @@ class CheckGroup(QGroupBox):
             check.stateChanged.disconnect()
             check.setChecked(False)
             check.stateChanged.connect(self.checkChanged.emit)
+
 
 class PdfFilter(QFrame):
     filterChanged = Signal(list)
@@ -180,10 +181,13 @@ class PdfFilter(QFrame):
                 self.session.delete(pdf)
         self.filterChanged.emit(paths)
 
-    def refresh(self, runtime: bool=False):
-        self.pub.set_checks([i[0] for i in self.session.query(PDF.publisher).distinct().order_by(PDF.publisher) if i[0]], runtime)
-        self.rel.set_checks([str(i[0]) for i in self.session.query(PDF.release).distinct().order_by(PDF.release) if i[0]], runtime)
-        self.tag.set_checks([i[0] for i in self.session.query(TAG.tag).filter(TAG.pdf).distinct().order_by(TAG.tag)], runtime)
+    def refresh(self, runtime: bool = False):
+        self.pub.set_checks(
+            [i[0] for i in self.session.query(PDF.publisher).distinct().order_by(PDF.publisher) if i[0]], runtime)
+        self.rel.set_checks(
+            [str(i[0]) for i in self.session.query(PDF.release).distinct().order_by(PDF.release) if i[0]], runtime)
+        self.tag.set_checks([i[0] for i in self.session.query(TAG.tag).filter(TAG.pdf).distinct().order_by(TAG.tag)],
+                            runtime)
 
     def clear(self):
         self.pub.clear()
