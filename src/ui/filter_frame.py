@@ -113,11 +113,14 @@ class CheckGroup(QtWidgets.QGroupBox):
     def selected(self) -> list[str]:
         return [check.text() for check in self._checks if check.isChecked()]
 
+    @property
+    def checked(self) -> bool:
+        return any(check.isChecked() for check in self._checks)
+
     def checks(self) -> list[str]:
         return [check.text() for check in self._checks]
 
     def set_checks(self, checks: list[str]):
-        print(checks)
         for exist_check in self._checks:
             if exist_check.text() not in checks:
                 exist_check.stateChanged.disconnect()
@@ -131,6 +134,7 @@ class CheckGroup(QtWidgets.QGroupBox):
     def add_check(self, check_text: str):
         check = QtWidgets.QCheckBox(check_text)
         check.setObjectName("#CheckBox")
+        check.setChecked(self.checked)
         check.stateChanged.connect(self.checkChanged.emit)
         self._checks.append(check)
         self.layout().addWidget(check)

@@ -1,12 +1,10 @@
 import os
-import time
-import zipfile
 
 from PySide6 import QtWidgets, QtCore
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from core.model import Base, TAG
+from core import functions, model
 from ui import ScanFrame, FilterFrame, PathFrame, PreviewFrame, InfoFrame
 
 
@@ -14,7 +12,7 @@ class MainWindow(QtWidgets.QSplitter):
     def __init__(self):
         super().__init__()
         engine = create_engine('sqlite:///pdf.db3', echo=False)
-        Base.metadata.create_all(engine)
+        model.Base.metadata.create_all(engine)
         self.sessionmaker = sessionmaker(bind=engine)
 
         self.setWindowTitle('TagPDF v1.0')
@@ -49,13 +47,13 @@ class MainWindow(QtWidgets.QSplitter):
         self.setStretchFactor(1, 9)
         self.setStretchFactor(2, 4)
 
-        self.model = path_frame.model
+        self.paths = path_frame.paths
 
         scan_frame.folderChanged.connect(path_frame.set_paths)
         filter_frame.filterChanged.connect(path_frame.set_paths)
         path_frame.selectChanged.connect(preview_frame.document().load)
         path_frame.selectChanged.connect(info_frame.set_path)
-        info_frame.infoChanged.connect(self.model.layoutChanged.emit)
+        info_frame.infoChanged.connect(path_frame.layoutChanged.emit)
         info_frame.infoChanged.connect(filter_frame.refresh)
 
         scan_frame._btn.clicked.connect(filter_frame.clear)
@@ -65,26 +63,15 @@ class MainWindow(QtWidgets.QSplitter):
         filter_frame.check_changed()
 
     def export(self):
-        pdfs = self.model._paths
-        if not pdfs:
+        if not self.paths:
             return
-        path = QtWidgets.QFileDialog.getExistingDirectory(
-            self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop')
-        if not path:
+        if not (folder := QtWidgets.QFileDialog.getExistingDirectory(
+                self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop')):
             return
-        path += f"/{time.strftime('PDF_%Y%m%d%H%M%S', time.localtime())}.zip"
-
-        zip_file = zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED)
-        for pdf in pdfs:
-            zip_file.write(pdf, os.path.basename(pdf))
-        zip_file.close()
+        functions.zip_path(self.paths, folder)
 
     def closeEvent(self, event):
         session = self.sessionmaker()
-        tags = session.query(TAG).all()
-        for tag in tags:
-            if not tag.pdf:
-                session.delete(tag)
-        session.commit()
+        functions.clear_tag_if_unused(session)
         session.close()
         event.accept()

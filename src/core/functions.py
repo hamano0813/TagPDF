@@ -18,6 +18,14 @@ def scan_pdf(folder: str) -> list | None:
     return paths
 
 
+def zip_path(paths: list[str], folder: str) -> None:
+    folder += f"/{time.strftime('PDF_%Y%m%d%H%M%S', time.localtime())}.zip"
+    zip_file = zipfile.ZipFile(folder, 'w', zipfile.ZIP_DEFLATED)
+    for path in paths:
+        zip_file.write(path, os.path.basename(path))
+    zip_file.close()
+
+
 def create_pdf_by_path(session: Session, path: str) -> model.PDF:
     pdf = model.PDF(fp=path)
     session.add(pdf)

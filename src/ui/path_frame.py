@@ -46,16 +46,18 @@ class PathFrame(QtWidgets.QFrame):
     def __init__(self, session_maker: sessionmaker = None):
         super().__init__(parent=None)
         self.setObjectName("PathFrame")
-        self.model = PathModel(session_maker=session_maker)
+        self._model = PathModel(session_maker=session_maker)
+        # self._proxy = QtCore.QSortFilterProxyModel()
+        # self._proxy.setSourceModel(self._model)
 
         self._table = QtWidgets.QTableView()
-        self._table.setModel(self.model)
+        self._table.setModel(self._model)
         self._table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self._table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self._table.verticalHeader().hide()
-        self._table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self._table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self._table.setColumnWidth(0, 300)
+        self._table.setColumnWidth(1, 300)
         self._table.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -63,11 +65,14 @@ class PathFrame(QtWidgets.QFrame):
         self.layout().addWidget(self._table)
 
         self._table.clicked.connect(self.change_select)
+        self.paths = self._model._paths
+        self.layoutChanged = self._model.layoutChanged
 
     def set_paths(self, paths: list[str]):
-        self.model._paths = paths
-        self.model.layoutChanged.emit()
+        self._model._paths = paths
+        self._model.layoutChanged.emit()
         self.selectChanged.emit("")
 
     def change_select(self, index: QtCore.QModelIndex):
-        self.selectChanged.emit(self.model._paths[index.row()])
+        # idx = self._proxy.mapToSource(index)
+        self.selectChanged.emit(self._model._paths[index.row()])
