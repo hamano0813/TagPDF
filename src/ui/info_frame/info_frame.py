@@ -1,6 +1,5 @@
 from PySide6 import QtWidgets, QtCore
 
-from core.model import PDF, TAG
 from .tag_edit import TagEdit
 from .year_spin import YearSpin
 from core import functions
@@ -70,7 +69,11 @@ class InfoFrame(QtWidgets.QFrame):
             pdf = functions.create_pdf_by_path(self.session, self.path)
         field = self.sender().property("field")
         data = self.get_info().get(field)
-        functions.update_pdf_with_field(self.session, pdf, field, data)
+        if self.get_info().get("tit"):
+            functions.update_pdf_with_field(self.session, pdf, field, data)
+        else:
+            functions.delete_pdf(self.session, pdf)
+            self.clear()
         self.infoChanged.emit()
         self.refresh_completer()
 
@@ -90,5 +93,5 @@ class InfoFrame(QtWidgets.QFrame):
             self.clear()
 
     def refresh_completer(self):
-        # self.tags.set_completer(functions.get_tags(self.session))
-        pass
+        tags = [t.tag for t in functions.get_all_tags(self.session)]
+        self.tags.set_completer(tags)

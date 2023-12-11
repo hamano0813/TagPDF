@@ -18,10 +18,6 @@ def scan_pdf(folder: str) -> list | None:
     return paths
 
 
-def get_pdf_by_path(session: Session, path: str) -> model.PDF | None:
-    return session.query(model.PDF).filter(model.PDF.fp == path).one_or_none()
-
-
 def create_pdf_by_path(session: Session, path: str) -> model.PDF:
     pdf = model.PDF(fp=path)
     session.add(pdf)
@@ -29,10 +25,8 @@ def create_pdf_by_path(session: Session, path: str) -> model.PDF:
     return pdf
 
 
-def update_pdf_with_field(session: Session, pdf: model.PDF, field: str, data: any) -> None:
-    setattr(pdf, field, data)
-    session.add(pdf)
-    session.commit()
+def get_pdf_by_path(session: Session, path: str) -> model.PDF | None:
+    return session.query(model.PDF).filter(model.PDF.fp == path).one_or_none()
 
 
 def get_tag_by_tag(session: Session, tag: str) -> model.TAG:
@@ -41,3 +35,18 @@ def get_tag_by_tag(session: Session, tag: str) -> model.TAG:
         session.add(t)
         session.commit()
     return t
+
+
+def get_all_tags(session: Session) -> list:
+    return session.query(model.TAG).all()
+
+
+def update_pdf_with_field(session: Session, pdf: model.PDF, field: str, data: any) -> None:
+    setattr(pdf, field, data)
+    session.add(pdf)
+    session.commit()
+
+
+def delete_pdf(session: Session, pdf: model.PDF) -> None:
+    session.delete(pdf)
+    session.commit()

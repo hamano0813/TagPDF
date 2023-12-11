@@ -2,6 +2,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 from core import functions
 
+
 class InputFlowLayout(QtWidgets.QLayout):
     heightChanged = QtCore.Signal(int)
     widthChanged = QtCore.Signal(int)
