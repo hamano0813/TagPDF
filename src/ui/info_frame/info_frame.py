@@ -62,7 +62,7 @@ class InfoFrame(QtWidgets.QFrame):
         self._num.setText(info.get("num", ""))
         self._pub.setText(info.get("pub", ""))
         self._rls.setValue(info.get("rls", None))
-        self._tags.tags = [t.tag for t in sorted(info.get("tags", list()), key=lambda x: x.tag)]
+        self._tags.tags = [t.tag for t in info.get("tags", list())]
 
     def _change_info(self) -> None:
         pdf = functions.get_pdf_by_path(self._session, self._path)
