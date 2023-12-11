@@ -2,6 +2,10 @@
     border: none;
 }
 
+#PathFrame {
+    margin: 0px;
+}
+
 /* TagLine of TagEdit */
 #TagLine {
     margin-left: 8px;

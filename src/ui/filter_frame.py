@@ -1,82 +1,87 @@
 import os
 
-from PySide6.QtCore import Qt, QSize, QRect, QPoint, Signal
-from PySide6.QtWidgets import QCheckBox, QGroupBox, QPushButton, QFrame, QLayout, QVBoxLayout, QStyle, QSizePolicy
+from PySide6 import QtWidgets, QtCore
+from PySide6.QtCore import Qt
 
 from core.model import PDF, TAG
 
 
-class FlowLayout(QLayout):
-    widthChanged = Signal(int)
+class CheckFlowLayout(QtWidgets.QLayout):
+    widthChanged = QtCore.Signal(int)
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__(parent=None)
+        self.setObjectName("CheckFlowLayout")
         self.setSpacing(3)
-        self._item_list = []
+        self._item_list: list[QtWidgets.QLayoutItem] = []
 
-    def __del__(self):
+    def __del__(self) -> None:
         item = self.takeAt(0)
         while item:
             item = self.takeAt(0)
 
-    def addItem(self, item):
+    def addItem(self, item: QtWidgets.QLayoutItem) -> None:
         self._item_list.append(item)
 
-    def removeItem(self, item):
-        if item in self._item_list:
-            self._item_list.remove(item)
+    def removeItem(self, item: QtWidgets.QLayoutItem) -> None:
+        self._item_list.remove(item)
 
-    def count(self):
+    def count(self) -> int:
         return len(self._item_list)
 
-    def itemAt(self, index):
+    def itemAt(self, index: int) -> QtWidgets.QLayoutItem | None:
         if 0 <= index < len(self._item_list):
             return self._item_list[index]
         return None
 
-    def takeAt(self, index):
+    def takeAt(self, index) -> QtWidgets.QLayoutItem | None:
         if 0 <= index < len(self._item_list):
             return self._item_list.pop(index)
         return None
 
-    def expandingDirections(self):
-        return Qt.Orientation(0)
+    def expandingDirections(self) -> QtCore.Qt.Orientations:
+        return QtCore.Qt.Orientation.Horizontal
 
-    def hasHeightForWidth(self):
+    def hasHeightForWidth(self) -> bool:
         return True
 
-    def heightForWidth(self, width):
-        height = self._do_layout(QRect(0, 0, width, 0), True)
+    def heightForWidth(self, width: int) -> int:
+        height = self._do_layout(QtCore.QRect(0, 0, width, 0), True)
         return height
 
-    def setGeometry(self, rect):
-        super(FlowLayout, self).setGeometry(rect)
+    def setGeometry(self, rect: QtCore.QRect) -> None:
+        super(CheckFlowLayout, self).setGeometry(rect)
         self._do_layout(rect, False)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QtCore.QSize:
         return self.minimumSize()
 
-    def minimumSize(self):
-        size = QSize()
+    def minimumSize(self) -> QtCore.QSize:
+        size = QtCore.QSize()
         for item in self._item_list:
             size = size.expandedTo(item.minimumSize())
-        size += QSize(
-            2 * self.contentsMargins().top(), 2 * self.contentsMargins().top()
+        size += QtCore.QSize(
+            self.contentsMargins().top() * 2,
+            self.contentsMargins().top() * 2
         )
         return size
 
-    def _do_layout(self, rect, test_only):
+    def _do_layout(self, rect: QtCore.QRect, test_only: bool) -> int:
         line_height = 0
         spacing = self.spacing()
         x = rect.x() + spacing
         y = rect.y() + spacing
         for item in self._item_list:
-            style: QStyle = item.widget().style()
+            style: QtWidgets.QStyle = item.widget().style()
             layout_spacing_x = style.layoutSpacing(
-                QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal
+                QtWidgets.QSizePolicy.PushButton,
+                QtWidgets.QSizePolicy.PushButton,
+                QtCore.Qt.Orientation.Horizontal
             )
             layout_spacing_y = style.layoutSpacing(
-                QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Vertical
+                QtWidgets.QSizePolicy.PushButton,
+                QtWidgets.QSizePolicy.PushButton,
+                QtCore.Qt.Orientation.Vertical
             )
             space_x = spacing + layout_spacing_x
             space_y = spacing + layout_spacing_y
@@ -87,7 +92,7 @@ class FlowLayout(QLayout):
                 next_x = x + item.sizeHint().width() + space_x
                 line_height = 0
             if not test_only:
-                item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
+                item.setGeometry(QtCore.QRect(QtCore.QPoint(x, y), item.sizeHint()))
             x = next_x
             line_height = max(line_height, item.sizeHint().height())
         if self.count():
@@ -95,15 +100,15 @@ class FlowLayout(QLayout):
         return y + line_height - rect.y()
 
 
-class CheckGroup(QGroupBox):
-    checkChanged = Signal(bool)
+class CheckGroup(QtWidgets.QGroupBox):
+    checkChanged = QtCore.Signal(bool)
 
     def __init__(self, title):
         super().__init__(title, parent=None)
         self.setTitle(title)
-        self.setLayout(FlowLayout())
+        self.setLayout(CheckFlowLayout())
         self.layout().widthChanged.connect(self.setMinimumWidth)
-        self._checks: list[QCheckBox] = list()
+        self._checks: list[QtWidgets.QCheckBox] = list()
 
     @property
     def selected(self):
@@ -124,7 +129,7 @@ class CheckGroup(QGroupBox):
                 self.add_check(check, runtime)
 
     def add_check(self, check_text: str, checked: bool = False):
-        check = QCheckBox(check_text)
+        check = QtWidgets.QCheckBox(check_text)
         check.setChecked(checked)
         check.stateChanged.connect(self.checkChanged.emit)
         check.setStyleSheet('QCheckBox { padding-left: 5px; padding-right: 5px; }')
@@ -138,8 +143,8 @@ class CheckGroup(QGroupBox):
             check.stateChanged.connect(self.checkChanged.emit)
 
 
-class PdfFilter(QFrame):
-    filterChanged = Signal(list)
+class FilterFrame(QtWidgets.QFrame):
+    filterChanged = QtCore.Signal(list)
 
     def __init__(self, session_maker):
         super().__init__(parent=None)
@@ -148,11 +153,11 @@ class PdfFilter(QFrame):
         self.pub = CheckGroup("发布")
         self.rel = CheckGroup("年份")
         self.tag = CheckGroup("标签")
-        self.export_btn = QPushButton("导出当前列表")
+        self.export_btn = QtWidgets.QPushButton("导出当前列表")
         self.export_btn.setFixedHeight(40)
         self.export_btn.setStyleSheet('QPushButton { font-size: 14px; }')
 
-        self.setLayout(QVBoxLayout())
+        self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setSpacing(0)
         self.layout().setContentsMargins(0, 0, 0, 3)
         self.layout().addWidget(self.pub)

@@ -3,16 +3,11 @@ import time
 import zipfile
 
 from PySide6 import QtWidgets, QtCore
-
-from PySide6.QtWidgets import QSplitter, QTabWidget, QFileDialog
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from ui import ScanFrame, PdfFilter, FileTable, PreviewFrame, InfoFrame
 from core.model import Base, TAG
+from ui import ScanFrame, FilterFrame, PathFrame, PreviewFrame, InfoFrame
 
 
 class MainWindow(QtWidgets.QSplitter):
@@ -30,8 +25,8 @@ class MainWindow(QtWidgets.QSplitter):
         self.setMinimumSize(1440, 720)
 
         scan_frame = ScanFrame(root='/')
-        filter_frame = PdfFilter(session_maker=self.sessionmaker)
-        file_table = FileTable(session_maker=self.sessionmaker)
+        filter_frame = FilterFrame(session_maker=self.sessionmaker)
+        path_frame = PathFrame(session_maker=self.sessionmaker)
         preview_frame = PreviewFrame()
         info_frame = InfoFrame(session_maker=self.sessionmaker)
 
@@ -46,26 +41,25 @@ class MainWindow(QtWidgets.QSplitter):
         right_frame.addWidget(info_frame)
 
         self.addWidget(left_frame)
-        self.addWidget(file_table)
+        self.addWidget(path_frame)
         self.addWidget(right_frame)
         self.setStretchFactor(0, 1)
         self.setStretchFactor(1, 5)
         self.setStretchFactor(2, 2)
 
-        scan_frame.folderChanged.connect(file_table.set_files)
-        file_table.selectChanged.connect(preview_frame.document().load)
-        file_table.selectChanged.connect(info_frame.set_path)
-        info_frame.infoChanged.connect(file_table._model.refresh_titles)
-        info_frame.infoChanged.connect(lambda: filter_frame.refresh(True))
-        filter_frame.filterChanged.connect(file_table.set_files)
+        self.model = path_frame.model
+
+        scan_frame.folderChanged.connect(path_frame.set_paths)
+        path_frame.selectChanged.connect(preview_frame.document().load)
+        path_frame.selectChanged.connect(info_frame.set_path)
+        info_frame.infoChanged.connect(self.model.layoutChanged.emit)
+        filter_frame.filterChanged.connect(path_frame.set_paths)
 
         scan_frame._btn.clicked.connect(filter_frame.clear)
         filter_frame.export_btn.clicked.connect(self.export)
 
         filter_frame.refresh()
         filter_frame.check_changed()
-
-        self.model = file_table._model
 
     def export(self):
         pdfs = self.model._paths

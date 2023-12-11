@@ -1,3 +1,5 @@
+import os
+
 from sqlalchemy import Integer, String, ForeignKeyConstraint, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -21,6 +23,11 @@ class PDF(Base):  # PDF表
         return (f"<PDF(fp='{self.fp}', title='{self.tit}', number='{self.num}',"
                 f" publisher='{self.pub}', release='{self.rls}')>"
                 f" tag='{self.tags}'>")
+
+    @property
+    def name(self):
+        return os.path.basename(self.fp)
+
 
 class TAG(Base):  # TAG表
     __tablename__ = 'tag'
