@@ -12,6 +12,7 @@ class YearSpin(QtWidgets.QSpinBox):
         self.lineEdit().setValidator(QtGui.QRegularExpressionValidator(r'^\d{0,4}$'))
 
         self.setRange(*YearSpin.RANGE)
+        self.setValue(YearSpin.RANGE[0])
 
     def textFromValue(self, val) -> str:
         if val == YearSpin.RANGE[0]:
@@ -28,7 +29,7 @@ class YearSpin(QtWidgets.QSpinBox):
             return None
         return super().value()
 
-    def setValue(self, val) -> None:
+    def setValue(self, val: int | None) -> None:
         if val is None:
             self.clear()
         else:
