@@ -2,6 +2,8 @@ import os
 import time
 import zipfile
 
+from PySide6 import QtWidgets, QtCore
+
 from PySide6.QtWidgets import QSplitter, QTabWidget, QFileDialog
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
@@ -9,15 +11,11 @@ from PySide6.QtGui import QIcon
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from .scan_frame import ScanFrame
-from .pdf_filter import PdfFilter
-from .file_table import FileTable
-from .preview_frame import PreviewFrame
-from .info_frame import InfoFrame
+from ui import ScanFrame, PdfFilter, FileTable, PreviewFrame, InfoFrame
 from core.model import Base, TAG
 
 
-class MainWindow(QSplitter):
+class MainWindow(QtWidgets.QSplitter):
     def __init__(self):
         super().__init__()
         engine = create_engine('sqlite:///pdf.db3', echo=False)
@@ -25,57 +23,56 @@ class MainWindow(QSplitter):
         self.sessionmaker = sessionmaker(bind=engine)
 
         self.setWindowTitle('TagPDF v1.0')
-        self.setWindowIcon(QIcon(":/icon.png"))
-        self.setOrientation(Qt.Horizontal)
+        self.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.setHandleWidth(1)
         self.setChildrenCollapsible(False)
         self.setContentsMargins(0, 0, 0, 0)
         self.setMinimumSize(1440, 720)
 
-        self.scan_frame = ScanFrame(root='/')
-        self.pdf_filter = PdfFilter(session_maker=self.sessionmaker)
+        scan_frame = ScanFrame(root='/')
+        filter_frame = PdfFilter(session_maker=self.sessionmaker)
+        file_table = FileTable(session_maker=self.sessionmaker)
+        preview_frame = PreviewFrame()
+        info_frame = InfoFrame(session_maker=self.sessionmaker)
 
-        left_tab = QTabWidget()
-        left_tab.addTab(self.pdf_filter, '过滤查询')
-        left_tab.addTab(self.scan_frame, '扫描添加')
-        self.addWidget(left_tab)
+        left_frame = QtWidgets.QTabWidget()
+        left_frame.addTab(filter_frame, '过滤查询')
+        left_frame.addTab(scan_frame, '扫描添加')
 
-        self.file_table = FileTable(session_maker=self.sessionmaker)
-        self.addWidget(self.file_table)
+        right_frame = QtWidgets.QSplitter()
+        right_frame.setOrientation(QtCore.Qt.Orientation.Vertical)
+        right_frame.setHandleWidth(1)
+        right_frame.addWidget(preview_frame)
+        right_frame.addWidget(info_frame)
 
-        self.right_splitter = QSplitter()
-        self.right_splitter.setOrientation(Qt.Vertical)
-        self.right_splitter.setHandleWidth(1)
-
-        self.preview_frame = PreviewFrame()
-        self.info_editor = InfoFrame(session_maker=self.sessionmaker)
-
-        self.right_splitter.addWidget(self.preview_frame)
-        self.right_splitter.addWidget(self.info_editor)
-        self.addWidget(self.right_splitter)
-
+        self.addWidget(left_frame)
+        self.addWidget(file_table)
+        self.addWidget(right_frame)
         self.setStretchFactor(0, 1)
         self.setStretchFactor(1, 5)
         self.setStretchFactor(2, 2)
 
-        self.scan_frame.folderChanged.connect(self.file_table.set_files)
-        self.file_table.selectChanged.connect(self.preview_frame.document().load)
-        self.file_table.selectChanged.connect(self.info_editor.set_path)
-        self.info_editor.infoChanged.connect(self.file_table._model.refresh_titles)
-        self.info_editor.infoChanged.connect(lambda: self.pdf_filter.refresh(True))
-        self.pdf_filter.filterChanged.connect(self.file_table.set_files)
+        scan_frame.folderChanged.connect(file_table.set_files)
+        file_table.selectChanged.connect(preview_frame.document().load)
+        file_table.selectChanged.connect(info_frame.set_path)
+        info_frame.infoChanged.connect(file_table._model.refresh_titles)
+        info_frame.infoChanged.connect(lambda: filter_frame.refresh(True))
+        filter_frame.filterChanged.connect(file_table.set_files)
 
-        self.scan_frame._btn.clicked.connect(self.pdf_filter.clear)
-        self.pdf_filter.export_btn.clicked.connect(self.export)
+        scan_frame._btn.clicked.connect(filter_frame.clear)
+        filter_frame.export_btn.clicked.connect(self.export)
 
-        self.pdf_filter.refresh()
-        self.pdf_filter.check_changed()
+        filter_frame.refresh()
+        filter_frame.check_changed()
+
+        self.model = file_table._model
 
     def export(self):
-        pdfs = self.file_table._model.files
+        pdfs = self.model._paths
         if not pdfs:
             return
-        path = QFileDialog.getExistingDirectory(self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop')
+        path = QtWidgets.QFileDialog.getExistingDirectory(
+            self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop')
         if not path:
             return
         path += f"/{time.strftime('PDF_%Y%m%d%H%M%S', time.localtime())}.zip"

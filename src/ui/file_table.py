@@ -9,18 +9,18 @@ from core.model import PDF
 class FileModel(QAbstractTableModel):
     def __init__(self, parent=None, session_maker: sessionmaker = None):
         super().__init__(parent)
-        self.files = []
-        self.titles = []
-        self.columns = ['文件路径', '标题']
-        self.session = session_maker()
+        self._paths = []
+        self._titles = []
+        self._columns = ['文件路径', '标题']
+        self._session = session_maker()
 
     def headerData(self, section, orientation, role=...):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                return self.columns[section]
+                return self._columns[section]
 
     def rowCount(self, parent=...):
-        return len(self.files)
+        return len(self._paths)
 
     def columnCount(self, parent=...):
         return 2
@@ -28,24 +28,24 @@ class FileModel(QAbstractTableModel):
     def data(self, index, role=...):
         if role == Qt.DisplayRole:
             if index.column() == 0:
-                return self.files[index.row()]
-            return self.titles[index.row()]
+                return self._paths[index.row()]
+            return self._titles[index.row()]
         if role == Qt.ItemDataRole.BackgroundRole:
-            if self.titles[index.row()]:
+            if self._titles[index.row()]:
                 return QBrush(Qt.cyan)
         return None
 
     def set_files(self, files):
-        self.files = files
+        self._paths = files
         self.refresh_titles()
 
     def refresh_titles(self):
-        self.titles = []
-        for file in self.files:
-            if pdf := self.session.query(PDF).filter_by(fp=file).all():
-                self.titles.append(pdf[0].tit)
+        self._titles = []
+        for file in self._paths:
+            if pdf := self._session.query(PDF).filter_by(fp=file).all():
+                self._titles.append(pdf[0].tit)
             else:
-                self.titles.append('')
+                self._titles.append('')
         self.layoutChanged.emit()
 
 
@@ -74,4 +74,4 @@ class FileTable(QTableView):
         index = self.currentIndex()
         if not index.isValid():
             return
-        self.selectChanged.emit(self._model.files[index.row()])
+        self.selectChanged.emit(self._model._paths[index.row()])

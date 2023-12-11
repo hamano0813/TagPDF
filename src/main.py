@@ -1,16 +1,17 @@
 import sys
 
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtGui
 
 from ui.main_window import MainWindow
 from res import *
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    qss_file = QtCore.QFile(":/style.qss")
-    qss_file.open(QtCore.QFile.ReadOnly)
-    stylesheet = qss_file.readAll().data().decode()
+    qss = QtCore.QFile(":/style.qss")
+    qss.open(QtCore.QFile.ReadOnly)
+    stylesheet = qss.readAll().data().decode()
     app.setStyleSheet(stylesheet)
+    window = MainWindow()
+    window.setWindowIcon(QtGui.QIcon(":/icon.png"))
+    window.show()
     sys.exit(app.exec())
