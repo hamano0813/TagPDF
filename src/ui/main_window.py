@@ -15,7 +15,6 @@ from .file_table import FileTable
 from .preview_frame import PreviewFrame
 from .info_frame import InfoFrame
 from core.model import Base, TAG
-from res import *
 
 
 class MainWindow(QSplitter):
@@ -63,7 +62,7 @@ class MainWindow(QSplitter):
         self.file_table.selectChanged.connect(self.preview_frame.document().load)
         self.file_table.selectChanged.connect(self.info_editor.set_path)
         self.info_editor.infoChanged.connect(self.file_table._model.refresh_titles)
-        self.info_editor.infoChanged.connect(lambda :self.pdf_filter.refresh(True))
+        self.info_editor.infoChanged.connect(lambda: self.pdf_filter.refresh(True))
         self.pdf_filter.filterChanged.connect(self.file_table.set_files)
 
         self.scan_frame._btn.clicked.connect(self.pdf_filter.clear)

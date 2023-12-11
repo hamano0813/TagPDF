@@ -191,7 +191,7 @@ class TagEdit(QtWidgets.QFrame):
 
     def clear(self) -> None:
         for tag in self.tags:
-            self._tags[tag]._delete()
+            self._del_tag(tag)
 
     def set_completer(self, tags: list[str]):
         if not tags:
