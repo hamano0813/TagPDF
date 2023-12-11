@@ -192,7 +192,7 @@ class TagEdit(QtWidgets.QFrame):
         self.tagChanged.emit(self.tags)
 
     def clear(self) -> None:
-        for tag in self.tags:
+        for tag in list(self._tags.keys()):
             self._del_tag(tag)
 
     def set_completer(self, tags: list[str]):
