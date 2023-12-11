@@ -52,7 +52,6 @@ class ScanFrame(QtWidgets.QFrame):
 
         self._btn = QtWidgets.QPushButton('扫描选中路径')
         self._btn.setObjectName('PushButton')
-        self._btn.setFixedHeight(40)
         self._btn.clicked.connect(self._scan)
 
         self.setLayout(QtWidgets.QVBoxLayout())

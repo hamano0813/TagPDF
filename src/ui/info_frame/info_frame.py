@@ -62,7 +62,7 @@ class InfoFrame(QtWidgets.QFrame):
         self._num.setText(info.get("num", ""))
         self._pub.setText(info.get("pub", ""))
         self._rls.setValue(info.get("rls", None))
-        self._tags.tags = [t.tag for t in info.get("tags", list())]
+        self._tags.tags = [t.tag for t in sorted(info.get("tags", list()), key=lambda x: x.tag)]
 
     def _change_info(self) -> None:
         pdf = functions.get_pdf_by_path(self._session, self._path)
@@ -76,12 +76,12 @@ class InfoFrame(QtWidgets.QFrame):
             if pdf:
                 functions.delete_pdf(self._session, pdf)
             self.clear()
+        functions.clear_tag_if_unused(self._session)
         self.infoChanged.emit()
         self._reset_completer()
 
     def _reset_completer(self):
-        tags = [t.tag for t in functions.get_all_tags(self._session)]
-        self._tags.set_completer(tags)
+        self._tags.set_completer(functions.get_all_tag(self._session))
 
     def set_path(self, path: str):
         self._path = path

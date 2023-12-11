@@ -1,6 +1,5 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 
-from core import functions
 from ui.filter_frame import CheckFlowLayout
 
 
@@ -140,6 +139,8 @@ class TagEdit(QtWidgets.QFrame):
         self.tagChanged.emit(self.tags)
 
     def _del_tag(self, tag: str) -> None:
+        if tag not in self._tags:
+            return
         tag_label = self._tags.pop(tag)
         self.layout().removeWidget(tag_label)
         tag_label.deleteLater()

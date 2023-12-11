@@ -37,8 +37,24 @@ def get_tag_by_tag(session: Session, tag: str) -> model.TAG:
     return t
 
 
-def get_all_tags(session: Session) -> list:
-    return session.query(model.TAG).all()
+def get_all_pub(session: Session) -> list:
+    return [i[0] for i in session.query(model.PDF.pub).distinct().order_by(model.PDF.pub) if i[0]]
+
+
+def get_all_rls(session: Session) -> list:
+    return [i[0] for i in session.query(model.PDF.rls).distinct().order_by(model.PDF.rls) if i[0]]
+
+
+def get_all_tag(session: Session) -> list:
+    return [i[0] for i in session.query(model.TAG.tag).distinct().order_by(model.TAG.tag) if i[0]]
+
+
+def get_pdf_by_filters(session: Session, pub: list, rls: list, tag: list) -> list:
+    return session.query(model.PDF).filter(
+        model.PDF.pub.in_(pub) if pub else True,
+        model.PDF.rls.in_(rls) if rls else True,
+        model.PDF.tags.any(model.TAG.tag.in_(tag)) if tag else True,
+    ).all()
 
 
 def update_pdf_with_field(session: Session, pdf: model.PDF, field: str, data: any) -> None:
@@ -49,4 +65,11 @@ def update_pdf_with_field(session: Session, pdf: model.PDF, field: str, data: an
 
 def delete_pdf(session: Session, pdf: model.PDF) -> None:
     session.delete(pdf)
+    session.commit()
+
+
+def clear_tag_if_unused(session: Session) -> None:
+    for tag in session.query(model.TAG).all():
+        if not tag.pdf:
+            session.delete(tag)
     session.commit()

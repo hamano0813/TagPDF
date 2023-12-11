@@ -1,9 +1,14 @@
+#CheckBox { padding-left: 5px; padding-right: 5px; }
+
 #DirTree {
     border: none;
 }
 
 #PathFrame {
     margin: 0px;
+}
+#PushButton {
+    height: 30px;
 }
 
 /* TagLine of TagEdit */

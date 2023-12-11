@@ -39,24 +39,27 @@ class MainWindow(QtWidgets.QSplitter):
         right_frame.setHandleWidth(1)
         right_frame.addWidget(preview_frame)
         right_frame.addWidget(info_frame)
+        right_frame.setStretchFactor(0, 5)
+        right_frame.setStretchFactor(1, 3)
 
         self.addWidget(left_frame)
         self.addWidget(path_frame)
         self.addWidget(right_frame)
-        self.setStretchFactor(0, 1)
-        self.setStretchFactor(1, 5)
-        self.setStretchFactor(2, 2)
+        self.setStretchFactor(0, 3)
+        self.setStretchFactor(1, 9)
+        self.setStretchFactor(2, 4)
 
         self.model = path_frame.model
 
         scan_frame.folderChanged.connect(path_frame.set_paths)
+        filter_frame.filterChanged.connect(path_frame.set_paths)
         path_frame.selectChanged.connect(preview_frame.document().load)
         path_frame.selectChanged.connect(info_frame.set_path)
         info_frame.infoChanged.connect(self.model.layoutChanged.emit)
-        filter_frame.filterChanged.connect(path_frame.set_paths)
+        info_frame.infoChanged.connect(filter_frame.refresh)
 
         scan_frame._btn.clicked.connect(filter_frame.clear)
-        filter_frame.export_btn.clicked.connect(self.export)
+        filter_frame._btn.clicked.connect(self.export)
 
         filter_frame.refresh()
         filter_frame.check_changed()

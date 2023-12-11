@@ -1,9 +1,8 @@
 import os
 
 from PySide6 import QtWidgets, QtCore
-from PySide6.QtCore import Qt
 
-from core.model import PDF, TAG
+from core import functions
 
 
 class CheckFlowLayout(QtWidgets.QLayout):
@@ -103,7 +102,7 @@ class CheckFlowLayout(QtWidgets.QLayout):
 class CheckGroup(QtWidgets.QGroupBox):
     checkChanged = QtCore.Signal(bool)
 
-    def __init__(self, title):
+    def __init__(self, title: str):
         super().__init__(title, parent=None)
         self.setTitle(title)
         self.setLayout(CheckFlowLayout())
@@ -111,13 +110,14 @@ class CheckGroup(QtWidgets.QGroupBox):
         self._checks: list[QtWidgets.QCheckBox] = list()
 
     @property
-    def selected(self):
+    def selected(self) -> list[str]:
         return [check.text() for check in self._checks if check.isChecked()]
 
-    def checks(self):
+    def checks(self) -> list[str]:
         return [check.text() for check in self._checks]
 
-    def set_checks(self, checks: list[str], runtime: bool = False):
+    def set_checks(self, checks: list[str]):
+        print(checks)
         for exist_check in self._checks:
             if exist_check.text() not in checks:
                 exist_check.stateChanged.disconnect()
@@ -126,13 +126,12 @@ class CheckGroup(QtWidgets.QGroupBox):
                 exist_check.deleteLater()
         for check in checks:
             if check not in self.checks():
-                self.add_check(check, runtime)
+                self.add_check(check)
 
-    def add_check(self, check_text: str, checked: bool = False):
+    def add_check(self, check_text: str):
         check = QtWidgets.QCheckBox(check_text)
-        check.setChecked(checked)
+        check.setObjectName("#CheckBox")
         check.stateChanged.connect(self.checkChanged.emit)
-        check.setStyleSheet('QCheckBox { padding-left: 5px; padding-right: 5px; }')
         self._checks.append(check)
         self.layout().addWidget(check)
 
@@ -148,53 +147,45 @@ class FilterFrame(QtWidgets.QFrame):
 
     def __init__(self, session_maker):
         super().__init__(parent=None)
-        self.session = session_maker()
+        self._session = session_maker()
 
-        self.pub = CheckGroup("发布")
-        self.rel = CheckGroup("年份")
-        self.tag = CheckGroup("标签")
-        self.export_btn = QtWidgets.QPushButton("导出当前列表")
-        self.export_btn.setFixedHeight(40)
-        self.export_btn.setStyleSheet('QPushButton { font-size: 14px; }')
+        self._pub = CheckGroup("发布")
+        self._rls = CheckGroup("年份")
+        self._tag = CheckGroup("标签")
+        self._btn = QtWidgets.QPushButton("导出当前列表")
+        self._btn.setObjectName('PushButton')
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setSpacing(0)
         self.layout().setContentsMargins(0, 0, 0, 3)
-        self.layout().addWidget(self.pub)
-        self.layout().addWidget(self.rel)
-        self.layout().addWidget(self.tag)
-        self.layout().addWidget(self.export_btn)
+        self.layout().addWidget(self._pub)
+        self.layout().addWidget(self._rls)
+        self.layout().addWidget(self._tag)
+        self.layout().addWidget(self._btn)
 
-        self.pub.checkChanged.connect(self.check_changed)
-        self.rel.checkChanged.connect(self.check_changed)
-        self.tag.checkChanged.connect(self.check_changed)
+        self._pub.checkChanged.connect(self.check_changed)
+        self._rls.checkChanged.connect(self.check_changed)
+        self._tag.checkChanged.connect(self.check_changed)
 
     def check_changed(self):
-        publisher = self.pub.selected
-        release = list(map(int, self.rel.selected))
-        tags = self.tag.selected
-        pdfs = self.session.query(PDF).filter(
-            PDF.pub.in_(publisher) if publisher else True,
-            PDF.rls.in_(release) if release else True,
-            PDF.tags.any(TAG.tag.in_(tags)) if tags else True,
-        ).all()
+        pub = self._pub.selected
+        rls = list(map(int, self._rls.selected))
+        tag = self._tag.selected
+        pdfs = functions.get_pdf_by_filters(self._session, pub, rls, tag)
         paths = []
         for pdf in pdfs:
             if os.path.exists(pdf.fp):
                 paths.append(pdf.fp)
             else:
-                self.session.delete(pdf)
+                functions.delete_pdf(self._session, pdf)
         self.filterChanged.emit(paths)
 
-    def refresh(self, runtime: bool = False):
-        self.pub.set_checks(
-            [i[0] for i in self.session.query(PDF.pub).distinct().order_by(PDF.pub) if i[0]], runtime)
-        self.rel.set_checks(
-            [str(i[0]) for i in self.session.query(PDF.rls).distinct().order_by(PDF.rls) if i[0]], runtime)
-        self.tag.set_checks([i[0] for i in self.session.query(TAG.tag).filter(TAG.pdf).distinct().order_by(TAG.tag)],
-                            runtime)
+    def refresh(self):
+        self._pub.set_checks(functions.get_all_pub(self._session))
+        self._rls.set_checks(list(map(str, functions.get_all_rls(self._session))))
+        self._tag.set_checks(functions.get_all_tag(self._session))
 
     def clear(self):
-        self.pub.clear()
-        self.rel.clear()
-        self.tag.clear()
+        self._pub.clear()
+        self._rls.clear()
+        self._tag.clear()
