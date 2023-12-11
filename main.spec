@@ -89,7 +89,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='TagPDF',
-    icon='src/icon.ico',
+    icon='res/icon.ico',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
