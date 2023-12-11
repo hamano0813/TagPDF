@@ -7,9 +7,10 @@ from res import *
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    qss = QtCore.QFile(":/style.qss")
-    qss.open(QtCore.QFile.ReadOnly)
-    stylesheet = qss.readAll().data().decode()
+    # qss = QtCore.QFile(":/style.qss")
+    # qss.open(QtCore.QFile.ReadOnly)
+    # stylesheet = qss.readAll().data().decode()
+    stylesheet = open("../res/style.qss", "r").read()
     app.setStyleSheet(stylesheet)
     window = MainWindow()
     window.setWindowIcon(QtGui.QIcon(":/icon.png"))
