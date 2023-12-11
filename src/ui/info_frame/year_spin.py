@@ -22,7 +22,7 @@ class YearSpin(QtWidgets.QSpinBox):
     def valueFromText(self, text) -> int:
         if text == '':
             return YearSpin.RANGE[0]
-        return super().valueFromText(text.rstrip(' 年'))
+        return super().valueFromText(text.rstrip('年').strip())
 
     def value(self) -> int | None:
         if self.text() == '':

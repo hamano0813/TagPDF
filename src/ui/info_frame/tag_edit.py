@@ -1,67 +1,22 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from core import functions
+from ui.filter_frame import CheckFlowLayout
 
 
-class InputFlowLayout(QtWidgets.QLayout):
+class InputFlowLayout(CheckFlowLayout):
     heightChanged = QtCore.Signal(int)
-    widthChanged = QtCore.Signal(int)
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
         self.setObjectName("InputFlowLayout")
         self.setSpacing(3)
-        self._item_list = []
+        self._item_list: list[QtWidgets.QLayoutItem] = []
 
-    def __del__(self) -> None:
-        item = self.takeAt(0)
-        while item:
-            item = self.takeAt(0)
-
-    def addItem(self, item) -> None:
+    def addItem(self, item: QtWidgets.QLayoutItem) -> None:
         self._item_list.insert(-1, item)
 
-    def removeItem(self, item):
-        self._item_list.remove(item)
-
-    def count(self):
-        return len(self._item_list)
-
-    def itemAt(self, index):
-        if 0 <= index < len(self._item_list):
-            return self._item_list[index]
-        return None
-
-    def takeAt(self, index):
-        if 0 <= index < len(self._item_list):
-            return self._item_list.pop(index)
-        return None
-
-    def expandingDirections(self):
-        return QtCore.Qt.Orientation(0)
-
-    def hasHeightForWidth(self):
-        return True
-
-    def heightForWidth(self, width):
-        height = self._do_layout(QtCore.QRect(0, 0, width, 0), True)
-        return height
-
-    def setGeometry(self, rect):
-        super(InputFlowLayout, self).setGeometry(rect)
-        self._do_layout(rect, False)
-
-    def sizeHint(self):
-        return self.minimumSize()
-
-    def minimumSize(self):
-        size = QtCore.QSize()
-        for item in self._item_list:
-            size = size.expandedTo(item.minimumSize())
-        size += QtCore.QSize(self.contentsMargins().top() * 2, self.contentsMargins().top() * 2)
-        return size
-
-    def _do_layout(self, rect: QtCore.QRect, test_only: bool):
+    def _do_layout(self, rect: QtCore.QRect, test_only: bool) -> int:
         line_height = 0
         spacing = self.spacing()
         x = rect.x() + spacing
@@ -156,7 +111,6 @@ class TagEdit(QtWidgets.QFrame):
         self.layout().widthChanged.connect(self.setMinimumWidth)
         self._line.returnPressed.connect(self._append_tag)
         self._line.editingFinished.connect(self._append_tag)
-        self.setEnabled = self._line.setEnabled
 
     def resizeEvent(self, event):
         self._box.setFixedSize(self.size())
@@ -204,3 +158,8 @@ class TagEdit(QtWidgets.QFrame):
         completer.setMaxVisibleItems(5)
         completer.popup().setObjectName("TagPopup")
         self._line.setCompleter(completer)
+
+    def sizeHint(self):
+        size = super().sizeHint()
+        size.setHeight(31)
+        return size

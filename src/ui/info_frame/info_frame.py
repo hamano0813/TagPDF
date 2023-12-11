@@ -1,8 +1,8 @@
 from PySide6 import QtWidgets, QtCore
 
+from core import functions
 from ui.info_frame.tag_edit import TagEdit
 from ui.info_frame.year_spin import YearSpin
-from core import functions
 
 
 class InfoFrame(QtWidgets.QFrame):
@@ -35,6 +35,7 @@ class InfoFrame(QtWidgets.QFrame):
         self._tags.tagChanged.connect(self._change_info)
 
         self._reset_completer()
+        self.setEnabled(False)
 
     def _create_line(self, field: str):
         line = QtWidgets.QLineEdit()
@@ -64,16 +65,16 @@ class InfoFrame(QtWidgets.QFrame):
         self._tags.tags = [t.tag for t in info.get("tags", list())]
 
     def _change_info(self) -> None:
-        if not self._path:
-            return self.sender().clear()
-        if not (pdf := functions.get_pdf_by_path(self._session, self._path)):
-            pdf = functions.create_pdf_by_path(self._session, self._path)
-        field = self.sender().property("field")
-        data = self._get_info().get(field)
-        if self._get_info().get("tit"):
+        pdf = functions.get_pdf_by_path(self._session, self._path)
+        if self._tit.text().strip():
+            if not pdf:
+                pdf = functions.create_pdf_by_path(self._session, self._path)
+            field = self.sender().property("field")
+            data = self._get_info().get(field)
             functions.update_pdf_with_field(self._session, pdf, field, data)
         else:
-            functions.delete_pdf(self._session, pdf)
+            if pdf:
+                functions.delete_pdf(self._session, pdf)
             self.clear()
         self.infoChanged.emit()
         self._reset_completer()
@@ -84,6 +85,10 @@ class InfoFrame(QtWidgets.QFrame):
 
     def set_path(self, path: str):
         self._path = path
+        if not self._path:
+            self.clear()
+            return self.setEnabled(False)
+        self.setEnabled(True)
         if pdf := functions.get_pdf_by_path(self._session, self._path):
             info = {k: getattr(pdf, k) for k in ("tit", "num", "pub", "rls", "tags")}
             self._set_info(info)
