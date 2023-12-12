@@ -55,8 +55,7 @@ class MainWindow(QtWidgets.QSplitter):
         path_frame.selectChanged.connect(info_frame.set_path)
         info_frame.infoChanged.connect(path_frame.layoutChanged.emit)
         info_frame.infoChanged.connect(filter_frame.refresh)
-
-        scan_frame._btn.clicked.connect(filter_frame.clear)
+        scan_frame._btn.clicked.connect(filter_frame.refresh)
         filter_frame._btn.clicked.connect(self.export)
 
         filter_frame.refresh()

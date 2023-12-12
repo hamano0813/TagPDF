@@ -91,15 +91,21 @@ class InfoFrame(QtWidgets.QFrame):
         self.setEnabled(True)
         if pdf := functions.get_pdf_by_path(self._session, self._path):
             info = {k: getattr(pdf, k) for k in ("tit", "num", "pub", "rls", "tags")}
+            self._rls.valueChanged.disconnect()
             self._tags.tagChanged.disconnect()
             self._set_info(info)
+            self._rls.valueChanged.connect(self._change_info)
             self._tags.tagChanged.connect(self._change_info)
         else:
             self.clear()
 
     def clear(self):
+        self._rls.valueChanged.disconnect()
+        self._tags.tagChanged.disconnect()
         self._tit.clear()
         self._num.clear()
         self._pub.clear()
         self._rls.clear()
         self._tags.clear()
+        self._rls.valueChanged.connect(self._change_info)
+        self._tags.tagChanged.connect(self._change_info)

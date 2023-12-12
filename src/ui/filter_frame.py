@@ -113,37 +113,27 @@ class CheckGroup(QtWidgets.QGroupBox):
     def selected(self) -> list[str]:
         return [check.text() for check in self._checks if check.isChecked()]
 
-    @property
-    def checked(self) -> bool:
-        return any(check.isChecked() for check in self._checks)
-
     def checks(self) -> list[str]:
         return [check.text() for check in self._checks]
 
     def set_checks(self, checks: list[str]):
-        for exist_check in self._checks:
-            if exist_check.text() not in checks:
-                exist_check.stateChanged.disconnect()
-                self._checks.remove(exist_check)
-                self.layout().removeWidget(exist_check)
-                exist_check.deleteLater()
+        self.clear()
         for check in checks:
-            if check not in self.checks():
-                self.add_check(check)
+            self.add_check(check)
 
     def add_check(self, check_text: str):
         check = QtWidgets.QCheckBox(check_text)
         check.setObjectName("#CheckBox")
-        check.setChecked(self.checked)
         check.stateChanged.connect(self.checkChanged.emit)
         self._checks.append(check)
         self.layout().addWidget(check)
 
     def clear(self):
-        for check in self._checks:
+        while self._checks:
+            check = self._checks.pop()
             check.stateChanged.disconnect()
-            check.setChecked(False)
-            check.stateChanged.connect(self.checkChanged.emit)
+            self.layout().removeWidget(check)
+            check.deleteLater()
 
 
 class FilterFrame(QtWidgets.QFrame):
