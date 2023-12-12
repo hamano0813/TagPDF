@@ -53,7 +53,7 @@ class MainWindow(QtWidgets.QSplitter):
         filter_frame.filterChanged.connect(path_frame.set_paths)
         path_frame.selectChanged.connect(preview_frame.document().load)
         path_frame.selectChanged.connect(info_frame.set_path)
-        info_frame.infoChanged.connect(path_frame.layoutChanged.emit)
+        info_frame.infoChanged.connect(path_frame.refresh)
         info_frame.infoChanged.connect(filter_frame.refresh)
         scan_frame._btn.clicked.connect(filter_frame.refresh)
         filter_frame._btn.clicked.connect(self.export)
@@ -64,10 +64,8 @@ class MainWindow(QtWidgets.QSplitter):
     def export(self):
         if not self.paths:
             return
-        if not (folder := QtWidgets.QFileDialog.getExistingDirectory(
-                self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop')):
-            return
-        functions.zip_path(self.paths, folder)
+        if f := QtWidgets.QFileDialog.getExistingDirectory(self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop'):
+            functions.zip_path(self.paths, f)
 
     def closeEvent(self, event):
         session = self.sessionmaker()

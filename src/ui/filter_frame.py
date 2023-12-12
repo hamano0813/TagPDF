@@ -100,7 +100,7 @@ class CheckFlowLayout(QtWidgets.QLayout):
 
 
 class CheckGroup(QtWidgets.QGroupBox):
-    checkChanged = QtCore.Signal(bool)
+    checkChanged = QtCore.Signal()
 
     def __init__(self, title: str):
         super().__init__(title, parent=None)
@@ -124,14 +124,14 @@ class CheckGroup(QtWidgets.QGroupBox):
     def add_check(self, check_text: str):
         check = QtWidgets.QCheckBox(check_text)
         check.setObjectName("#CheckBox")
-        check.stateChanged.connect(self.checkChanged.emit)
+        check.clicked.connect(self.checkChanged.emit)
         self._checks.append(check)
         self.layout().addWidget(check)
 
     def clear(self):
         while self._checks:
             check = self._checks.pop()
-            check.stateChanged.disconnect()
+            check.clicked.disconnect()
             self.layout().removeWidget(check)
             check.deleteLater()
 

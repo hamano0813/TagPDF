@@ -9,15 +9,23 @@ from core import functions
 class PathModel(QtCore.QAbstractTableModel):
     def __init__(self, session_maker: sessionmaker = None):
         super().__init__(parent=None)
+        self._session = session_maker()
         self._paths: list[str] = list()
         self._columns = {'文件名': "name", '标题': "tit", "文号": "num"}
-        self._session = session_maker()
+        self._data: list[list[str]] = list()
 
-    def info(self, r_idx: int):
-        path = self._paths[r_idx]
-        if pdf := functions.get_pdf_by_path(self._session, path):
-            return [getattr(pdf, v) for v in self._columns.values()]
-        return [os.path.basename(path), "", ""]
+    def set_paths(self, paths: list[str]) -> None:
+        self._paths = paths
+        self.refresh()
+
+    def refresh(self):
+        self._data = list()
+        for path in self._paths:
+            if pdf := functions.get_pdf_by_path(self._session, path):
+                self._data.append([getattr(pdf, v) for v in self._columns.values()])
+            else:
+                self._data.append([os.path.basename(path), "", ""])
+        self.layoutChanged.emit()
 
     def headerData(self, section: int, orientation: QtCore.Qt.Orientation, role: QtCore.Qt.ItemDataRole = ...) -> any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
@@ -31,11 +39,10 @@ class PathModel(QtCore.QAbstractTableModel):
         return len(self._columns)
 
     def data(self, index: QtCore.QModelIndex, role: QtCore.Qt.ItemDataRole = ...) -> any:
-        info = self.info(index.row())
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
-            return info[index.column()]
+            return self._data[index.row()][index.column()]
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
-            if info[1]:
+            if self._data[index.row()][1]:
                 return QtGui.QBrush(QtCore.Qt.GlobalColor.cyan)
         return None
 
@@ -47,8 +54,6 @@ class PathFrame(QtWidgets.QFrame):
         super().__init__(parent=None)
         self.setObjectName("PathFrame")
         self._model = PathModel(session_maker=session_maker)
-        # self._proxy = QtCore.QSortFilterProxyModel()
-        # self._proxy.setSourceModel(self._model)
 
         self._table = QtWidgets.QTableView()
         self._table.setModel(self._model)
@@ -56,23 +61,21 @@ class PathFrame(QtWidgets.QFrame):
         self._table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self._table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self._table.verticalHeader().hide()
-        self._table.setColumnWidth(0, 300)
-        self._table.setColumnWidth(1, 300)
+        self._table.setColumnWidth(0, 280)
+        self._table.setColumnWidth(1, 320)
         self._table.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addWidget(self._table)
 
-        self._table.clicked.connect(self.change_select)
-        self.paths = self._model._paths
-        self.layoutChanged = self._model.layoutChanged
+        self._table.clicked.connect(lambda index: self.selectChanged.emit(self.paths[index.row()]))
+        self.refresh = self._model.refresh
+
+    @property
+    def paths(self):
+        return self._model._paths
 
     def set_paths(self, paths: list[str]):
-        self._model._paths = paths
-        self._model.layoutChanged.emit()
+        self._model.set_paths(paths)
         self.selectChanged.emit("")
-
-    def change_select(self, index: QtCore.QModelIndex):
-        # idx = self._proxy.mapToSource(index)
-        self.selectChanged.emit(self._model._paths[index.row()])
