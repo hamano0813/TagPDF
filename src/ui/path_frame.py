@@ -64,12 +64,8 @@ class PathFrame(QtWidgets.QTableView):
         self.setColumnWidth(1, 320)
         self.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-        self.clicked.connect(lambda index: self.selectChanged.emit(self.paths[index.row()]))
+        self.clicked.connect(lambda index: self.selectChanged.emit(self._model._paths[index.row()]))
         self.refresh = self._model.refresh
-
-    @property
-    def paths(self):
-        return self._model._paths
 
     def set_paths(self, paths: list[str]):
         self._model.set_paths(paths)

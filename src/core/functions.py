@@ -1,4 +1,6 @@
 import os
+import datetime
+import zipfile
 
 from sqlalchemy.orm import Session
 
@@ -19,7 +21,7 @@ def scan_pdf(folder: str) -> list | None:
 
 
 def zip_path(paths: list[str], folder: str) -> None:
-    folder += f"/{time.strftime('PDF_%Y%m%d%H%M%S', time.localtime())}.zip"
+    folder = os.path.join(folder, "PDF_" + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '.zip')
     zip_file = zipfile.ZipFile(folder, 'w', zipfile.ZIP_DEFLATED)
     for path in paths:
         zip_file.write(path, os.path.basename(path))

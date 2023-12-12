@@ -23,7 +23,7 @@ class MainWindow(QtWidgets.QSplitter):
 
         scan_frame = ScanFrame(root='/')
         filter_frame = FilterFrame(session_maker=self.sessionmaker)
-        path_frame = PathFrame(session_maker=self.sessionmaker)
+        self.path_frame = PathFrame(session_maker=self.sessionmaker)
         preview_frame = PreviewFrame()
         info_frame = InfoFrame(session_maker=self.sessionmaker)
 
@@ -40,19 +40,17 @@ class MainWindow(QtWidgets.QSplitter):
         right_frame.setStretchFactor(1, 3)
 
         self.addWidget(left_frame)
-        self.addWidget(path_frame)
+        self.addWidget(self.path_frame)
         self.addWidget(right_frame)
         self.setStretchFactor(0, 3)
         self.setStretchFactor(1, 9)
         self.setStretchFactor(2, 4)
 
-        self.paths = path_frame.paths
-
-        scan_frame.folderChanged.connect(path_frame.set_paths)
-        filter_frame.filterChanged.connect(path_frame.set_paths)
-        path_frame.selectChanged.connect(preview_frame.document().load)
-        path_frame.selectChanged.connect(info_frame.set_path)
-        info_frame.infoChanged.connect(path_frame.refresh)
+        scan_frame.folderChanged.connect(self.path_frame.set_paths)
+        filter_frame.filterChanged.connect(self.path_frame.set_paths)
+        self.path_frame.selectChanged.connect(preview_frame.document().load)
+        self.path_frame.selectChanged.connect(info_frame.set_path)
+        info_frame.infoChanged.connect(self.path_frame.refresh)
         info_frame.infoChanged.connect(filter_frame.refresh)
         scan_frame._btn.clicked.connect(filter_frame.refresh)
         filter_frame._btn.clicked.connect(self.export)
@@ -61,10 +59,10 @@ class MainWindow(QtWidgets.QSplitter):
         filter_frame.check_changed()
 
     def export(self):
-        if not self.paths:
+        if not (paths := self.path_frame._model._paths):
             return
         if f := QtWidgets.QFileDialog.getExistingDirectory(self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop'):
-            functions.zip_path(self.paths, f)
+            functions.zip_path(paths, f)
 
     def closeEvent(self, event):
         session = self.sessionmaker()
