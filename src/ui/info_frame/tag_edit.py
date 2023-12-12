@@ -9,7 +9,6 @@ class InputFlowLayout(CheckFlowLayout):
     def __init__(self):
         super().__init__()
         self.setObjectName("InputFlowLayout")
-        self.setSpacing(3)
         self._item_list: list[QtWidgets.QLayoutItem] = []
 
     def addItem(self, item: QtWidgets.QLayoutItem) -> None:
@@ -95,7 +94,7 @@ class TagEdit(QtWidgets.QFrame):
         self._tags: dict[str, TagLabel] = dict()
 
         self._box = QtWidgets.QTextEdit(self)
-        self._box.setContentsMargins(0, 0, 0, 0)
+        self._box.setObjectName("TagBox")
         self._box.setReadOnly(True)
         self._box.setFixedHeight(self.sizeHint().height())
 
@@ -104,6 +103,7 @@ class TagEdit(QtWidgets.QFrame):
         self._line.sizeHint = lambda: QtCore.QSize(50, 25)
 
         self.setLayout(InputFlowLayout())
+        self.layout().setSpacing(3)
         self.layout().addWidget(self._line)
 
         self.layout().heightChanged.connect(self.setMinimumHeight)

@@ -6,24 +6,27 @@
 from PySide6 import QtCore
 
 qt_resource_data = b"\
-\x00\x00\x03K\
+\x00\x00\x032\
 #\
-DirTree {\x0d\x0a    b\
-order: none;\x0d\x0a}\x0d\
-\x0a\x0d\x0a/* TagLine of\
- TagEdit */\x0d\x0a#Ta\
-gLine {\x0d\x0a    mar\
-gin-left: 8px;\x0d\x0a\
-    border: none\
-;\x0d\x0a    backgroun\
-d-color: transpa\
-rent;\x0d\x0a}\x0d\x0a/* Tag\
-Popup of TagLine\
- */\x0d\x0a#TagPopup {\
-\x0d\x0a    margin-lef\
-t: 5px;\x0d\x0a}\x0d\x0a/* T\
-agLabel of TagEd\
-it */\x0d\x0a#TagLabel\
+MainWindow,\x0d\x0a#In\
+foFrame,\x0d\x0a#PathF\
+rame,\x0d\x0a#TagBox {\
+\x0d\x0a    margin: 0p\
+x;\x0d\x0a}\x0d\x0a\x0d\x0a#DirTre\
+e {\x0d\x0a    border:\
+ none;\x0d\x0a}\x0d\x0a\x0d\x0a#Pu\
+shButton {\x0d\x0a    \
+height: 30px;\x0d\x0a}\
+\x0d\x0a\x0d\x0a#TagLine {\x0d\x0a\
+    margin-left:\
+ 8px;\x0d\x0a    borde\
+r: none;\x0d\x0a    ba\
+ckground-color: \
+transparent;\x0d\x0a}\x0d\
+\x0a\x0d\x0a#TagPopup,\x0d\x0a#\
+TagText {\x0d\x0a    m\
+argin-left: 5px;\
+\x0d\x0a}\x0d\x0a\x0d\x0a#TagLabel\
 [hover=\x22true\x22] {\
 \x0d\x0a    margin: 0p\
 x;\x0d\x0a    padding:\
@@ -33,34 +36,30 @@ ver;\x0d\x0a    border\
 -radius: 6px;\x0d\x0a \
    background-co\
 lor: silver;\x0d\x0a}\x0d\
-\x0a#TagLabel[hover\
-=\x22false\x22] {\x0d\x0a   \
+\x0a\x0d\x0a#TagLabel[hov\
+er=\x22false\x22] {\x0d\x0a \
+   margin: 0px;\x0d\
+\x0a    padding: 1p\
+x;\x0d\x0a    border: \
+1px solid silver\
+;\x0d\x0a    border-ra\
+dius: 6px;\x0d\x0a    \
+background-color\
+: gainsboro;\x0d\x0a}\x0d\
+\x0a\x0d\x0a#TagButton,\x0d\x0a\
+#TagButton:hover\
+,\x0d\x0a#TagButton:pr\
+essed {\x0d\x0a    bor\
+der: none;\x0d\x0a    \
+font: bold norma\
+l 14px;\x0d\x0a    wid\
+th: 20px;\x0d\x0a}\x0d\x0a\x0d\x0a\
+#LineEdit {\x0d\x0a   \
  margin: 0px;\x0d\x0a \
-   padding: 1px;\
-\x0d\x0a    border: 1p\
-x solid silver;\x0d\
-\x0a    border-radi\
-us: 6px;\x0d\x0a    ba\
-ckground-color: \
-gainsboro;\x0d\x0a}\x0d\x0a/\
-* TagText of Tag\
-Label */\x0d\x0a#TagTe\
-xt { \x0d\x0a    margi\
-n-left: 5px;\x0d\x0a}\x0d\
-\x0a/* TagButton of\
- TagLabel */\x0d\x0a#T\
-agButton,\x0d\x0a#TagB\
-utton:hover,\x0d\x0a#T\
-agButton:pressed\
- {\x0d\x0a    border: \
-none;\x0d\x0a    font:\
- bold normal 14p\
-x;\x0d\x0a    width: 2\
-0px;\x0d\x0a}\x0d\x0a\x0d\x0a#Line\
-Edit {\x0d\x0a    padd\
-ing-left: 8px;\x0d\x0a\
-    padding-righ\
-t: 5px;\x0d\x0a}\
+   padding-left:\
+ 8px;\x0d\x0a    paddi\
+ng-right: 5px;\x0d\x0a\
+}\
 \x00\x00\x15\x85\
 \x89\
 PNG\x0d\x0a\x1a\x0a\x00\x00\x00\x0dIHDR\x00\
@@ -425,9 +424,9 @@ qt_resource_struct = b"\
 \x00\x00\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x01\
 \x00\x00\x00\x00\x00\x00\x00\x00\
 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
-\x00\x00\x01\x8cW\x96F>\
-\x00\x00\x00\x18\x00\x00\x00\x00\x00\x01\x00\x00\x03O\
-\x00\x00\x01\x8cHS/6\
+\x00\x00\x01\x8c[\xf6h9\
+\x00\x00\x00\x18\x00\x00\x00\x00\x00\x01\x00\x00\x036\
+\x00\x00\x01\x8cX\x82\xa9\x8b\
 "
 
 def qInitResources():

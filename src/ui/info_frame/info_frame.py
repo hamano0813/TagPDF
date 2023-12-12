@@ -10,7 +10,7 @@ class InfoFrame(QtWidgets.QFrame):
 
     def __init__(self, session_maker=None):
         super().__init__(parent=None)
-        self.setContentsMargins(0, 0, 0, 0)
+        self.setObjectName("InfoFrame")
         self._session = session_maker()
         self._path = ''
 
@@ -41,7 +41,6 @@ class InfoFrame(QtWidgets.QFrame):
         line = QtWidgets.QLineEdit()
         line.setObjectName('LineEdit')
         line.setProperty("field", field)
-        line.setContentsMargins(0, 0, 0, 0)
         line.setFixedHeight(self._tags.sizeHint().height())
         line.editingFinished.connect(self._change_info)
         line.data = lambda: line.text()

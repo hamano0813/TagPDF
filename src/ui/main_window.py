@@ -16,10 +16,9 @@ class MainWindow(QtWidgets.QSplitter):
         self.sessionmaker = sessionmaker(bind=engine)
 
         self.setWindowTitle('TagPDF v1.0')
+        self.setObjectName("MainWindow")
         self.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.setHandleWidth(1)
-        self.setChildrenCollapsible(False)
-        self.setContentsMargins(0, 0, 0, 0)
         self.setMinimumSize(1440, 720)
 
         scan_frame = ScanFrame(root='/')

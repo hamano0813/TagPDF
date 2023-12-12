@@ -47,7 +47,7 @@ class PathModel(QtCore.QAbstractTableModel):
         return None
 
 
-class PathFrame(QtWidgets.QFrame):
+class PathFrame(QtWidgets.QTableView):
     selectChanged = QtCore.Signal(str)
 
     def __init__(self, session_maker: sessionmaker = None):
@@ -55,21 +55,16 @@ class PathFrame(QtWidgets.QFrame):
         self.setObjectName("PathFrame")
         self._model = PathModel(session_maker=session_maker)
 
-        self._table = QtWidgets.QTableView()
-        self._table.setModel(self._model)
-        self._table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self._table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        self._table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self._table.verticalHeader().hide()
-        self._table.setColumnWidth(0, 280)
-        self._table.setColumnWidth(1, 320)
-        self._table.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.setModel(self._model)
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.verticalHeader().hide()
+        self.setColumnWidth(0, 280)
+        self.setColumnWidth(1, 320)
+        self.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().addWidget(self._table)
-
-        self._table.clicked.connect(lambda index: self.selectChanged.emit(self.paths[index.row()]))
+        self.clicked.connect(lambda index: self.selectChanged.emit(self.paths[index.row()]))
         self.refresh = self._model.refresh
 
     @property

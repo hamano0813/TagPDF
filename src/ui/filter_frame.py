@@ -11,7 +11,6 @@ class CheckFlowLayout(QtWidgets.QLayout):
     def __init__(self):
         super().__init__(parent=None)
         self.setObjectName("CheckFlowLayout")
-        self.setSpacing(3)
         self._item_list: list[QtWidgets.QLayoutItem] = []
 
     def __del__(self) -> None:
@@ -61,7 +60,7 @@ class CheckFlowLayout(QtWidgets.QLayout):
             size = size.expandedTo(item.minimumSize())
         size += QtCore.QSize(
             self.contentsMargins().top() * 2,
-            self.contentsMargins().top() * 2
+            self.contentsMargins().left() * 2
         )
         return size
 
@@ -106,6 +105,7 @@ class CheckGroup(QtWidgets.QGroupBox):
         super().__init__(title, parent=None)
         self.setTitle(title)
         self.setLayout(CheckFlowLayout())
+        self.layout().setSpacing(8)
         self.layout().widthChanged.connect(self.setMinimumWidth)
         self._checks: list[QtWidgets.QCheckBox] = list()
 
