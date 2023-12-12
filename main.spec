@@ -7,7 +7,7 @@ a = Analysis(
     ['src\\main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[("AUTHORS", "./"), ("LICENSE", "./"), ("README.html", "./"),],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
