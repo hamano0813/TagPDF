@@ -12,12 +12,12 @@ class InfoFrame(QtWidgets.QFrame):
         super().__init__(parent=None)
         self.setObjectName("InfoFrame")
         self._session = session_maker()
-        self._path = ''
+        self._path = ""
 
         self._tags = TagEdit()
-        self._tit = self._create_line('tit')
-        self._num = self._create_line('num')
-        self._pub = self._create_line('pub')
+        self._tit = self._create_line("tit")
+        self._num = self._create_line("num")
+        self._pub = self._create_line("pub")
         self._rls = YearSpin()
 
         self._tags.setProperty("field", "tags")
@@ -39,7 +39,7 @@ class InfoFrame(QtWidgets.QFrame):
 
     def _create_line(self, field: str):
         line = QtWidgets.QLineEdit()
-        line.setObjectName('LineEdit')
+        line.setObjectName("LineEdit")
         line.setProperty("field", field)
         line.setFixedHeight(self._tags.sizeHint().height())
         line.editingFinished.connect(self._change_info)
@@ -52,7 +52,7 @@ class InfoFrame(QtWidgets.QFrame):
             "num": self._num.text() if self._tit.text().strip() else None,
             "pub": self._pub.text() if self._tit.text().strip() else None,
             "rls": self._rls.value(),
-            "tags": [functions.get_tag_by_tag(self._session, t) for t in self._tags.tags]
+            "tags": [functions.get_tag_by_tag(self._session, t) for t in self._tags.tags],
         }
         return info
 

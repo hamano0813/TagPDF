@@ -5,11 +5,11 @@ from core import functions
 
 class ProxyModel(QtCore.QSortFilterProxyModel):
     HIDDEN = (
-        'c:/windows',
-        'c:/program files',
-        'c:/program files (x86)',
-        'c:/programdata',
-        'c:/users/all users',
+        "c:/windows",
+        "c:/program files",
+        "c:/program files (x86)",
+        "c:/programdata",
+        "c:/users/all users",
     )
 
     def __init__(self):
@@ -31,7 +31,7 @@ class ScanFrame(QtWidgets.QFrame):
 
     def __init__(self, root):
         super().__init__(parent=None)
-        self.setObjectName('ScanFrame')
+        self.setObjectName("ScanFrame")
 
         self._model = QtWidgets.QFileSystemModel()
         self._model.setRootPath(root)
@@ -44,14 +44,14 @@ class ScanFrame(QtWidgets.QFrame):
         self._proxy.sort(0, QtCore.Qt.SortOrder.AscendingOrder)
 
         self._tree = QtWidgets.QTreeView()
-        self._tree.setObjectName('DirTree')
+        self._tree.setObjectName("DirTree")
         self._tree.header().hide()
         self._tree.setModel(self._proxy)
         self._tree.expandToDepth(1)
         self._tree.expand(self._proxy.mapFromSource(self._model.index(root)))
 
-        self._btn = QtWidgets.QPushButton('扫描选中路径')
-        self._btn.setObjectName('PushButton')
+        self._btn = QtWidgets.QPushButton("扫描选中路径")
+        self._btn.setObjectName("PushButton")
         self._btn.clicked.connect(self._scan)
 
         self.setLayout(QtWidgets.QVBoxLayout())

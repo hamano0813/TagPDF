@@ -4,10 +4,13 @@ import os.path
 block_cipher = None
 
 a = Analysis(
-    ['src\\main.py'],
+    ["src\\main.py"],
     pathex=[],
     binaries=[],
-    datas=[("AUTHORS", "./"), ("LICENSE", "./"),],
+    datas=[
+        ("AUTHORS", "./"),
+        ("LICENSE", "./"),
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -22,46 +25,46 @@ a = Analysis(
 # Exclude Binaries
 binaries = []
 binaries_exclude = {
-    'opengl32sw.dll',
-    'Qt6OpenGL.dll',
-    'Qt6Qml.dll',
-    'Qt6QmlModels.dll',
-    'Qt6Quick.dll',
-    'Qt6Svg.dll',
-    'Qt6VirtualKeyboard.dll',
-    'MSVCP140.dll',
-    'MSVCP140_1.dll',
-    'MSVCP140_2.dll',
-    'libcrypto-1_1.dll',
-    'VCRUNTIME140.dll',
-    'VCRUNTIME140_1.dll',
-    'qsvgicon.dll',
-    'qgif.dll',
-    'qicns.dll',
-    'qjpeg.dll',
-    'qsvg.dll',
-    'qtga.dll',
-    'qtvirtualkeyboardplugin.dll',
-    'qdirect2d.dll',
-    'qoffscreen.dll',
-    'qminimal.dll',
-    'qwebp.dll',
-    'qtiff.dll',
-    'qwbmp.dll',
-    'qnetworklistmanager.dll',
-    'qcertonlybackend.dll',
-    'qopensslbackend.dll',
-    'qschannelbackend.dll',
-    'QtNetwork.pyd',
-    '_webp.cp310-win_amd64.pyd',
-    '_bz2.pyd',
-    '_decimal.pyd',
-    '_hashlib.pyd',
-    '_lzma.pyd',
-    'unicodedata.pyd',
+    "opengl32sw.dll",
+    "Qt6OpenGL.dll",
+    "Qt6Qml.dll",
+    "Qt6QmlModels.dll",
+    "Qt6Quick.dll",
+    "Qt6Svg.dll",
+    "Qt6VirtualKeyboard.dll",
+    "MSVCP140.dll",
+    "MSVCP140_1.dll",
+    "MSVCP140_2.dll",
+    "libcrypto-1_1.dll",
+    "VCRUNTIME140.dll",
+    "VCRUNTIME140_1.dll",
+    "qsvgicon.dll",
+    "qgif.dll",
+    "qicns.dll",
+    "qjpeg.dll",
+    "qsvg.dll",
+    "qtga.dll",
+    "qtvirtualkeyboardplugin.dll",
+    "qdirect2d.dll",
+    "qoffscreen.dll",
+    "qminimal.dll",
+    "qwebp.dll",
+    "qtiff.dll",
+    "qwbmp.dll",
+    "qnetworklistmanager.dll",
+    "qcertonlybackend.dll",
+    "qopensslbackend.dll",
+    "qschannelbackend.dll",
+    "QtNetwork.pyd",
+    "_webp.cp310-win_amd64.pyd",
+    "_bz2.pyd",
+    "_decimal.pyd",
+    "_hashlib.pyd",
+    "_lzma.pyd",
+    "unicodedata.pyd",
 }
 
-for (dest, source, kind) in a.binaries:
+for dest, source, kind in a.binaries:
     if os.path.split(source)[1] in binaries_exclude:
         continue
     binaries.append((dest, source, kind))
@@ -71,10 +74,10 @@ a.binaries = binaries
 # Exclude Datas
 datas = []
 
-for (dest, source, kind) in a.datas:
-    if os.path.split(source)[1].startswith('qtbase_'):
+for dest, source, kind in a.datas:
+    if os.path.split(source)[1].startswith("qtbase_"):
         continue
-    if os.path.splitext(source)[1] == '.qm':
+    if os.path.splitext(source)[1] == ".qm":
         continue
     datas.append((dest, source, kind))
 
@@ -88,8 +91,8 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='TagPDF',
-    icon='res/icon.ico',
+    name="TagPDF",
+    icon="res/icon.ico",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -100,7 +103,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    version='version.txt',
+    version="version.txt",
 )
 coll = COLLECT(
     exe,
@@ -110,5 +113,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='TagPDF',
+    name="TagPDF",
 )

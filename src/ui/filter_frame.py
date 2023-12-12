@@ -58,10 +58,7 @@ class CheckFlowLayout(QtWidgets.QLayout):
         size = QtCore.QSize()
         for item in self._item_list:
             size = size.expandedTo(item.minimumSize())
-        size += QtCore.QSize(
-            self.contentsMargins().top() * 2,
-            self.contentsMargins().left() * 2
-        )
+        size += QtCore.QSize(self.contentsMargins().top() * 2, self.contentsMargins().left() * 2)
         return size
 
     def _do_layout(self, rect: QtCore.QRect, test_only: bool) -> int:
@@ -74,12 +71,12 @@ class CheckFlowLayout(QtWidgets.QLayout):
             layout_spacing_x = style.layoutSpacing(
                 QtWidgets.QSizePolicy.PushButton,
                 QtWidgets.QSizePolicy.PushButton,
-                QtCore.Qt.Orientation.Horizontal
+                QtCore.Qt.Orientation.Horizontal,
             )
             layout_spacing_y = style.layoutSpacing(
                 QtWidgets.QSizePolicy.PushButton,
                 QtWidgets.QSizePolicy.PushButton,
-                QtCore.Qt.Orientation.Vertical
+                QtCore.Qt.Orientation.Vertical,
             )
             space_x = spacing + layout_spacing_x
             space_y = spacing + layout_spacing_y
@@ -147,7 +144,7 @@ class FilterFrame(QtWidgets.QFrame):
         self._rls = CheckGroup("年份")
         self._tag = CheckGroup("标签")
         self._btn = QtWidgets.QPushButton("导出当前列表")
-        self._btn.setObjectName('PushButton')
+        self._btn.setObjectName("PushButton")
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setSpacing(0)

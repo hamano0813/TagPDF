@@ -9,23 +9,23 @@ class YearSpin(QtWidgets.QSpinBox):
         self.setObjectName("YearSpin")
         self.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.setWrapping(True)
-        self.lineEdit().setValidator(QtGui.QRegularExpressionValidator(r'^\d{0,4}$'))
+        self.lineEdit().setValidator(QtGui.QRegularExpressionValidator(r"^\d{0,4}$"))
 
         self.setRange(*YearSpin.RANGE)
         self.setValue(YearSpin.RANGE[0])
 
     def textFromValue(self, val) -> str:
         if val == YearSpin.RANGE[0]:
-            return ''
-        return super().textFromValue(val) + ' 年'
+            return ""
+        return super().textFromValue(val) + " 年"
 
     def valueFromText(self, text) -> int:
-        if text == '':
+        if text == "":
             return YearSpin.RANGE[0]
-        return super().valueFromText(text.rstrip('年').strip())
+        return super().valueFromText(text.rstrip("年").strip())
 
     def value(self) -> int | None:
-        if self.text() == '':
+        if self.text() == "":
             return None
         return super().value()
 

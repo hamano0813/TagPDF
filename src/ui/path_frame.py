@@ -11,7 +11,7 @@ class PathModel(QtCore.QAbstractTableModel):
         super().__init__(parent=None)
         self._session = session_maker()
         self._paths: list[str] = list()
-        self._columns = {'文件名': "name", '标题': "tit", "文号": "num"}
+        self._columns = {"文件名": "name", "标题": "tit", "文号": "num"}
         self._data: list[list[str]] = list()
 
     def set_paths(self, paths: list[str]) -> None:

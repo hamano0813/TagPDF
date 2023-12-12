@@ -24,12 +24,12 @@ class InputFlowLayout(CheckFlowLayout):
             layout_spacing_x = style.layoutSpacing(
                 QtWidgets.QSizePolicy.ControlType.PushButton,
                 QtWidgets.QSizePolicy.ControlType.PushButton,
-                QtCore.Qt.Orientation.Horizontal
+                QtCore.Qt.Orientation.Horizontal,
             )
             layout_spacing_y = style.layoutSpacing(
                 QtWidgets.QSizePolicy.ControlType.PushButton,
                 QtWidgets.QSizePolicy.ControlType.PushButton,
-                QtCore.Qt.Orientation.Vertical
+                QtCore.Qt.Orientation.Vertical,
             )
             space_x = spacing + layout_spacing_x
             space_y = spacing + layout_spacing_y

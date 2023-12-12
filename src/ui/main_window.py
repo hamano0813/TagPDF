@@ -11,25 +11,25 @@ from ui import ScanFrame, FilterFrame, PathFrame, PreviewFrame, InfoFrame
 class MainWindow(QtWidgets.QSplitter):
     def __init__(self):
         super().__init__()
-        engine = create_engine('sqlite:///pdf.db3', echo=False)
+        engine = create_engine("sqlite:///pdf.db3", echo=False)
         model.Base.metadata.create_all(engine)
         self.sessionmaker = sessionmaker(bind=engine)
 
-        self.setWindowTitle('TagPDF v1.0')
+        self.setWindowTitle("TagPDF v1.0")
         self.setObjectName("MainWindow")
         self.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.setHandleWidth(1)
         self.setMinimumSize(1440, 720)
 
-        scan_frame = ScanFrame(root='/')
+        scan_frame = ScanFrame(root="/")
         filter_frame = FilterFrame(session_maker=self.sessionmaker)
         self.path_frame = PathFrame(session_maker=self.sessionmaker)
         preview_frame = PreviewFrame()
         info_frame = InfoFrame(session_maker=self.sessionmaker)
 
         left_frame = QtWidgets.QTabWidget()
-        left_frame.addTab(filter_frame, '过滤查询')
-        left_frame.addTab(scan_frame, '扫描添加')
+        left_frame.addTab(filter_frame, "过滤查询")
+        left_frame.addTab(scan_frame, "扫描添加")
 
         right_frame = QtWidgets.QSplitter()
         right_frame.setOrientation(QtCore.Qt.Orientation.Vertical)
@@ -61,7 +61,7 @@ class MainWindow(QtWidgets.QSplitter):
     def export(self):
         if not (paths := self.path_frame._model._paths):
             return
-        if f := QtWidgets.QFileDialog.getExistingDirectory(self, '选择导出路径', f'C:/Users/{os.getlogin()}/Desktop'):
+        if f := QtWidgets.QFileDialog.getExistingDirectory(self, "选择导出路径", f"C:/Users/{os.getlogin()}/Desktop"):
             functions.zip_path(paths, f)
 
     def closeEvent(self, event):

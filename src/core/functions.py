@@ -8,21 +8,21 @@ from core import model
 
 
 def scan_pdf(folder: str) -> list | None:
-    disk_path = [chr(i) + ':/' for i in range(ord('A'), ord('Z') + 1)]
-    disk_path.append('/')
+    disk_path = [chr(i) + ":/" for i in range(ord("A"), ord("Z") + 1)]
+    disk_path.append("/")
     if folder.upper() in disk_path:
         return None
     paths = []
     for root, dirs, files in os.walk(folder):
         for file in files:
-            if file.lower().endswith('.pdf'):
-                paths.append(os.path.join(root, file).replace('\\', '/'))
+            if file.lower().endswith(".pdf"):
+                paths.append(os.path.join(root, file).replace("\\", "/"))
     return paths
 
 
 def zip_path(paths: list[str], folder: str) -> None:
-    folder = os.path.join(folder, "PDF_" + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '.zip')
-    zip_file = zipfile.ZipFile(folder, 'w', zipfile.ZIP_DEFLATED)
+    folder = os.path.join(folder, "PDF_" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".zip")
+    zip_file = zipfile.ZipFile(folder, "w", zipfile.ZIP_DEFLATED)
     for path in paths:
         zip_file.write(path, os.path.basename(path))
     zip_file.close()
@@ -60,11 +60,15 @@ def get_all_tag(session: Session) -> list:
 
 
 def get_pdf_by_filters(session: Session, pub: list, rls: list, tag: list) -> list:
-    return session.query(model.PDF).filter(
-        model.PDF.pub.in_(pub) if pub else True,
-        model.PDF.rls.in_(rls) if rls else True,
-        model.PDF.tags.any(model.TAG.tag.in_(tag)) if tag else True,
-    ).all()
+    return (
+        session.query(model.PDF)
+        .filter(
+            model.PDF.pub.in_(pub) if pub else True,
+            model.PDF.rls.in_(rls) if rls else True,
+            model.PDF.tags.any(model.TAG.tag.in_(tag)) if tag else True,
+        )
+        .all()
+    )
 
 
 def update_pdf_with_field(session: Session, pdf: model.PDF, field: str, data: any) -> None:
