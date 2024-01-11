@@ -15,7 +15,7 @@ class MainWindow(QtWidgets.QSplitter):
         model.Base.metadata.create_all(engine)
         self.sessionmaker = sessionmaker(bind=engine)
 
-        self.setWindowTitle("TagPDF v1.0")
+        self.setWindowTitle("TagPDF v1.1")
         self.setObjectName("MainWindow")
         self.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.setHandleWidth(1)
