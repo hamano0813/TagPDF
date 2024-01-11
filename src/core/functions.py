@@ -1,4 +1,5 @@
 import os
+import csv
 import datetime
 import zipfile
 
@@ -20,12 +21,44 @@ def scan_pdf(folder: str) -> list | None:
     return paths
 
 
-def zip_path(paths: list[str], folder: str) -> None:
+def zip_path(paths: list[str], folder: str, session: Session) -> None:
     folder = os.path.join(folder, "PDF_" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".zip")
     zip_file = zipfile.ZipFile(folder, "w", zipfile.ZIP_DEFLATED)
-    for path in paths:
+    csv_path = folder.replace("PDF_", "INFO_").replace(".zip", ".csv")
+    csv_file = open(csv_path, "w", encoding="gbk")
+    csv_writer = csv.writer(csv_file, lineterminator='\n')
+    csv_writer.writerow(["序号", "标题", "文号", "发布单位", "发布日期"])
+    for rid, path in enumerate(paths):
+        pdf: model.PDF = get_pdf_by_path(session, path)
+        info = [rid+1, pdf.tit]
+        info.append(pdf.num if pdf.num else " ")
+        info.append(pdf.pub if pdf.pub else " ")
+        info.append(pdf.rls if pdf.rls else " ")
+        csv_writer.writerow(info)
         zip_file.write(path, os.path.basename(path))
+    csv_file.close()
     zip_file.close()
+
+
+def rename_pdfs(session: Session):
+    pdfs: list[model.PDF] = get_pdf_by_filters(session, [], [], [])
+    for pdf in pdfs:
+        if not os.path.exists(pdf.fp):
+            continue
+        title = pdf.tit
+        for i in ["/", "\\", ":", "*", "?", '"', "<", ">", "|"]:
+            title = title.replace(i, "")
+        title += '.pdf'
+        root, name = os.path.split(pdf.fp)
+        if name != title:
+            try:
+                os.rename(pdf.fp, path:=os.path.join(root, title))
+                pdf.fp = path
+                session.add(pdf)
+            except PermissionError as e:
+                return pdf.fp
+            finally:
+                session.commit()
 
 
 def create_pdf_by_path(session: Session, path: str) -> model.PDF:

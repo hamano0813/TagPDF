@@ -1,6 +1,7 @@
 import os
 
 from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6.QtGui import QMouseEvent
 from sqlalchemy.orm.session import sessionmaker
 
 from core import functions
@@ -70,3 +71,10 @@ class PathFrame(QtWidgets.QTableView):
     def set_paths(self, paths: list[str]):
         self._model.set_paths(paths)
         self.selectChanged.emit("")
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        # 判断mouse点击的位置是否在表格内，如果不在，则清空选择
+        if not self.indexAt(event.pos()).isValid():
+            self.setCurrentIndex(QtCore.QModelIndex())
+            self.selectChanged.emit("")
+        return super().mousePressEvent(event)
