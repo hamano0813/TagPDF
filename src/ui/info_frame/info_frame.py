@@ -17,9 +17,10 @@ class InfoFrame(QtWidgets.QFrame):
         self._tags = TagEdit()
         self._tit = self._create_line("tit")
         self._num = self._create_line("num")
-        self._pub = self._create_line("pub")
+        self._pubs = TagEdit()
         self._rls = YearSpin()
 
+        self._pubs.setProperty("field", "pubs")
         self._tags.setProperty("field", "tags")
         self._rls.setProperty("field", "rls")
         self._rls.setFixedHeight(self._tags.sizeHint().height())
@@ -27,10 +28,11 @@ class InfoFrame(QtWidgets.QFrame):
         self.setLayout(QtWidgets.QFormLayout())
         self.layout().addRow("标题", self._tit)
         self.layout().addRow("文号", self._num)
-        self.layout().addRow("发布", self._pub)
+        self.layout().addRow("发布", self._pubs)
         self.layout().addRow("年份", self._rls)
         self.layout().addRow("标签", self._tags)
 
+        self._pubs.tagChanged.connect(self._change_info)
         self._rls.valueChanged.connect(self._change_info)
         self._tags.tagChanged.connect(self._change_info)
 
@@ -50,7 +52,7 @@ class InfoFrame(QtWidgets.QFrame):
         info = {
             "tit": self._tit.text() if self._tit.text().strip() else None,
             "num": self._num.text() if self._tit.text().strip() else None,
-            "pub": self._pub.text() if self._tit.text().strip() else None,
+            "pubs": [functions.get_pub_by_pub(self._session, p) for p in self._pubs.tags],
             "rls": self._rls.value(),
             "tags": [functions.get_tag_by_tag(self._session, t) for t in self._tags.tags],
         }
@@ -59,7 +61,7 @@ class InfoFrame(QtWidgets.QFrame):
     def _set_info(self, info: dict):
         self._tit.setText(info.get("tit", ""))
         self._num.setText(info.get("num", ""))
-        self._pub.setText(info.get("pub", ""))
+        self._pubs.tags = [p.pub for p in info.get("pubs", list())]
         self._rls.setValue(info.get("rls", None))
         self._tags.tags = [t.tag for t in info.get("tags", list())]
 
@@ -70,17 +72,20 @@ class InfoFrame(QtWidgets.QFrame):
                 pdf = functions.create_pdf_by_path(self._session, self._path)
             field = self.sender().property("field")
             data = self._get_info().get(field)
+            print(field, data)
             functions.update_pdf_with_field(self._session, pdf, field, data)
         else:
             if pdf:
                 functions.delete_pdf(self._session, pdf)
             self.clear()
+        functions.clear_pub_if_unused(self._session)
         functions.clear_tag_if_unused(self._session)
         self.infoChanged.emit()
         self._reset_completer()
 
     def _reset_completer(self):
         self._tags.set_completer(functions.get_all_tag(self._session))
+        self._pubs.set_completer(functions.get_all_pub(self._session))
 
     def set_path(self, path: str):
         self._path = path
@@ -89,22 +94,26 @@ class InfoFrame(QtWidgets.QFrame):
             return self.setEnabled(False)
         self.setEnabled(True)
         if pdf := functions.get_pdf_by_path(self._session, self._path):
-            info = {k: getattr(pdf, k) for k in ("tit", "num", "pub", "rls", "tags")}
+            info = {k: getattr(pdf, k) for k in ("tit", "num", "pubs", "rls", "tags")}
             self._rls.valueChanged.disconnect()
+            self._pubs.tagChanged.disconnect()
             self._tags.tagChanged.disconnect()
             self._set_info(info)
             self._rls.valueChanged.connect(self._change_info)
+            self._pubs.tagChanged.connect(self._change_info)
             self._tags.tagChanged.connect(self._change_info)
         else:
             self.clear()
 
     def clear(self):
         self._rls.valueChanged.disconnect()
+        self._pubs.tagChanged.disconnect()
         self._tags.tagChanged.disconnect()
         self._tit.clear()
         self._num.clear()
-        self._pub.clear()
+        self._pubs.clear()
         self._rls.clear()
         self._tags.clear()
         self._rls.valueChanged.connect(self._change_info)
+        self._pubs.tagChanged.connect(self._change_info)
         self._tags.tagChanged.connect(self._change_info)

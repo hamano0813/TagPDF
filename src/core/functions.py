@@ -32,7 +32,8 @@ def zip_path(paths: list[str], folder: str, session: Session) -> None:
         pdf: model.PDF = get_pdf_by_path(session, path)
         info = [rid+1, pdf.tit]
         info.append(pdf.num if pdf.num else " ")
-        info.append(pdf.pub if pdf.pub else " ")
+        if pdf.pubs:
+            info.append("、".join([p.pub for p in pdf.pubs]))
         info.append(pdf.rls if pdf.rls else " ")
         csv_writer.writerow(info)
         zip_file.write(path, os.path.basename(path))
@@ -72,6 +73,14 @@ def get_pdf_by_path(session: Session, path: str) -> model.PDF | None:
     return session.query(model.PDF).filter(model.PDF.fp == path).one_or_none()
 
 
+def get_pub_by_pub(session: Session, pub: str) -> model.PUB:
+    if not (p := session.query(model.PUB).filter(model.PUB.pub == pub).one_or_none()):
+        p = model.PUB(pub=pub)
+        session.add(p)
+        session.commit()
+    return p      
+
+
 def get_tag_by_tag(session: Session, tag: str) -> model.TAG:
     if not (t := session.query(model.TAG).filter(model.TAG.tag == tag).one_or_none()):
         t = model.TAG(tag=tag)
@@ -80,12 +89,12 @@ def get_tag_by_tag(session: Session, tag: str) -> model.TAG:
     return t
 
 
-def get_all_pub(session: Session) -> list:
-    return [i[0] for i in session.query(model.PDF.pub).distinct().order_by(model.PDF.pub) if i[0]]
-
-
 def get_all_rls(session: Session) -> list:
     return [i[0] for i in session.query(model.PDF.rls).distinct().order_by(model.PDF.rls) if i[0]]
+
+
+def get_all_pub(session: Session) -> list:
+    return [i[0] for i in session.query(model.PUB.pub).distinct().order_by(model.PUB.pub) if i[0]]
 
 
 def get_all_tag(session: Session) -> list:
@@ -93,10 +102,11 @@ def get_all_tag(session: Session) -> list:
 
 
 def get_pdf_by_filters(session: Session, pub: list, rls: list, tag: list) -> list:
+    print(pub, rls, tag)
     return (
         session.query(model.PDF)
         .filter(
-            model.PDF.pub.in_(pub) if pub else True,
+            model.PDF.pubs.any(model.PUB.pub.in_(pub)) if pub else True,
             model.PDF.rls.in_(rls) if rls else True,
             model.PDF.tags.any(model.TAG.tag.in_(tag)) if tag else True,
         )
@@ -112,6 +122,13 @@ def update_pdf_with_field(session: Session, pdf: model.PDF, field: str, data: an
 
 def delete_pdf(session: Session, pdf: model.PDF) -> None:
     session.delete(pdf)
+    session.commit()
+
+
+def clear_pub_if_unused(session: Session) -> None:
+    for pub in session.query(model.PUB).all():
+        if not pub.pdf:
+            session.delete(pub)
     session.commit()
 
 

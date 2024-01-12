@@ -15,7 +15,7 @@ class MainWindow(QtWidgets.QSplitter):
         model.Base.metadata.create_all(engine)
         self.sessionmaker = sessionmaker(bind=engine)
 
-        self.setWindowTitle("TagPDF v1.1")
+        self.setWindowTitle("TagPDF v1.2")
         self.setObjectName("MainWindow")
         self.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.setHandleWidth(1)
@@ -68,6 +68,7 @@ class MainWindow(QtWidgets.QSplitter):
 
     def closeEvent(self, event: QtCore.QEvent):
         session = self.sessionmaker()
+        functions.clear_pub_if_unused(session)
         functions.clear_tag_if_unused(session)
         session.close()
         event.accept()

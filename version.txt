@@ -31,12 +31,12 @@ VSVersionInfo(
         '040904B0',
         [StringStruct('CompanyName', 'Hamano0813'),
         StringStruct('FileDescription', 'PDF标记查询工具'),
-        StringStruct('FileVersion', '1.1'),
+        StringStruct('FileVersion', '1.2'),
         StringStruct('InternalName', 'Tag PDF'),
         StringStruct('LegalCopyright', 'Copyright © 2024 Hamano0813'),
         StringStruct('OriginalFilename', 'TagPDF.exe'),
         StringStruct('ProductName', 'Tag PDF'),
-        StringStruct('ProductVersion', '1.1')])
+        StringStruct('ProductVersion', '1.2')])
       ]), 
     VarFileInfo([VarStruct('Translation', [2052, 1200])])
   ]
