@@ -72,7 +72,6 @@ class InfoFrame(QtWidgets.QFrame):
                 pdf = functions.create_pdf_by_path(self._session, self._path)
             field = self.sender().property("field")
             data = self._get_info().get(field)
-            print(field, data)
             functions.update_pdf_with_field(self._session, pdf, field, data)
         else:
             if pdf:

@@ -94,6 +94,7 @@ class TagEdit(QtWidgets.QFrame):
         self._tags: dict[str, TagLabel] = dict()
 
         self._box = QtWidgets.QTextEdit(self)
+        self._box.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self._box.setObjectName("TagBox")
         self._box.setReadOnly(True)
         self._box.setFixedHeight(self.sizeHint().height())

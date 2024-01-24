@@ -102,7 +102,6 @@ def get_all_tag(session: Session) -> list:
 
 
 def get_pdf_by_filters(session: Session, pub: list, rls: list, tag: list) -> list:
-    print(pub, rls, tag)
     return (
         session.query(model.PDF)
         .filter(
