@@ -6,3 +6,4 @@ upx.exe
 upx.1
 *.pyc
 *.db3
+res/res_rc.py
