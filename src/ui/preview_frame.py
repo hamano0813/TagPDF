@@ -4,15 +4,16 @@ from PySide6 import QtPdf, QtPdfWidgets
 class PreviewFrame(QtPdfWidgets.QPdfView):
     def __init__(self):
         super().__init__()
-        self.setDocument(QtPdf.QPdfDocument(self))
+        self._document = None
         self.setZoomMode(QtPdfWidgets.QPdfView.ZoomMode.FitToWidth)
         self.setPageMode(QtPdfWidgets.QPdfView.PageMode.MultiPage)
 
     def set_path(self, path: str):
-        document = QtPdf.QPdfDocument(self)
+        if self._document:
+            self._document.close()
+            self._document.deleteLater()
+            self._document = None
+        self._document = QtPdf.QPdfDocument(self)
         if path:
-            document.load(path)
-        else:
-            self.document().close()
-            self.document().deleteLater()
-        self.setDocument(document)
+            self._document.load(path)
+        self.setDocument(self._document)
