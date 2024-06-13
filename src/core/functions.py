@@ -53,7 +53,7 @@ def rename_pdfs(session: Session):
         root, name = os.path.split(pdf.fp)
         if name != title:
             try:
-                os.rename(pdf.fp, path:=os.path.join(root, title))
+                os.rename(pdf.fp, path:=f"{root}/{title}")
                 pdf.fp = path
                 session.add(pdf)
             except PermissionError as e:
