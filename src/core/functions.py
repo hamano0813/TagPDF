@@ -28,15 +28,23 @@ def zip_path(paths: list[str], folder: str, session: Session) -> None:
     csv_file = open(csv_path, "w", encoding="gbk")
     csv_writer = csv.writer(csv_file, lineterminator='\n')
     csv_writer.writerow(["序号", "标题", "文号", "发布单位", "发布日期"])
+    csv_infos = list()
     for rid, path in enumerate(paths):
         pdf: model.PDF = get_pdf_by_path(session, path)
-        info = [rid+1, pdf.tit]
-        info.append(pdf.num if pdf.num else " ")
+        info = [rid + 1, pdf.tit, pdf.num if pdf.num else " "]
         if pdf.pubs:
             info.append("、".join([p.pub for p in pdf.pubs]))
+        else:
+            info.append(" ")
         info.append(pdf.rls if pdf.rls else " ")
-        csv_writer.writerow(info)
-        zip_file.write(path, os.path.basename(path))
+        csv_infos.append(info)
+
+        if pdf.rls:
+            zip_file.write(path, f"{pdf.rls}/{os.path.basename(path)}")
+        else:
+            zip_file.write(path, os.path.basename(path))
+    csv_infos.sort(key=lambda x: x[4])
+    [csv_writer.writerow(info) for info in csv_infos]
     csv_file.close()
     zip_file.close()
 
