@@ -1,6 +1,6 @@
 import os
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 
 from core import functions
 
@@ -100,10 +100,26 @@ class CheckGroup(QtWidgets.QGroupBox):
 
     def __init__(self, title: str):
         super().__init__(title, parent=None)
+        self.setObjectName("CheckGroup")
         self.setTitle(title)
-        self.setLayout(CheckFlowLayout())
-        self.layout().setSpacing(8)
-        self.layout().widthChanged.connect(self.setMinimumWidth)
+        
+        self.scroll_area = QtWidgets.QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
+        
+        self.container_widget = QtWidgets.QWidget()
+        self.scroll_area.setWidget(self.container_widget)
+        
+        self.container_layout = CheckFlowLayout()
+        self.container_layout.setSpacing(8)
+        self.container_widget.setLayout(self.container_layout)
+        
+        main_layout = QtWidgets.QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(self.scroll_area)
+        self.setLayout(main_layout)
+        
+        self.container_layout.widthChanged.connect(self.setMinimumWidth)
         self._checks: list[QtWidgets.QCheckBox] = list()
 
     @property
@@ -123,13 +139,13 @@ class CheckGroup(QtWidgets.QGroupBox):
         check.setObjectName("#CheckBox")
         check.clicked.connect(self.checkChanged.emit)
         self._checks.append(check)
-        self.layout().addWidget(check)
+        self.container_layout.addWidget(check)
 
     def clear(self):
         while self._checks:
             check = self._checks.pop()
             check.clicked.disconnect()
-            self.layout().removeWidget(check)
+            self.container_layout.removeWidget(check)
             check.deleteLater()
 
 

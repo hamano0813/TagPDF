@@ -5,6 +5,10 @@
     margin: 0px;
 }
 
+#CheckGroup {
+    background-color: #F0F0F0;
+}
+
 #DirTree {
     border: none;
 }
