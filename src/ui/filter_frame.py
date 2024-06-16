@@ -106,6 +106,7 @@ class CheckGroup(QtWidgets.QGroupBox):
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         
         self.container_widget = QtWidgets.QWidget()
         self.scroll_area.setWidget(self.container_widget)
