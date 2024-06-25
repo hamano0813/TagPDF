@@ -2,7 +2,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 
 class YearSpin(QtWidgets.QSpinBox):
-    RANGE = (1980, 2030)
+    RANGE = (1960, 2030)
 
     def __init__(self, parent=None):
         super().__init__(parent)
