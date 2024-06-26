@@ -3,6 +3,7 @@
 [![python](https://img.shields.io/badge/Python-≥3.10-darkcyan?logo=python&style=flat&labelColor=013243)](https://www.python.org/)
 [![PySide6](https://img.shields.io/badge/PySide6-≥6.6-darkcyan?logo=qt&style=flat&labelColor=013243)](https://doc.qt.io/qtforpython/)
 [![sqlalchemy](https://img.shields.io/badge/sqlalchemy-≥2.0-darkcyan?logo=sqlalchemy&style=flat&labelColor=013243)](https://www.sqlalchemy.org/)
+[![pypinyin](https://img.shields.io/badge/pypinyin-≥0.51-darkcyan?logo=pypi&style=flat&labelColor=013243)](https://pypinyin.readthedocs.io/zh-cn/master/)
 
 ## 介绍
 
@@ -31,7 +32,10 @@
 - 通过左侧`过滤查询`子窗口可以对已经跟踪的PDF进行过滤查询，查询结果会在中间的子窗口中显示。
 - 查询的条件为`发布（单位）`、`（发文）年份`、`标签`，可以单独使用，也可以组合使用。
 - 查询全部未选中的情况下，则会列示所有已经跟踪的PDF。
-- 通过`导出当前列表`按钮可以将当前列出的全部PDF打包成一个ZIP文件，方便传输。
+- 通过左侧`过滤查询`子窗口下方的过滤文本框可以实现模糊查询，输入关键字后自动过滤查询结果。
+- 关键字查询支持`标题`、`文号`、`发布`、`年份`、`标签`五个属性，支持全字符匹配、全拼音匹配、首字母匹配。
+- 中间的子窗口会列出当前扫描到的或者查询到的PDF，支持点击标题列进行排序，点击左上角的`↓`按钮可以恢复默认排序。
+- 通过`导出当前列表`按钮可以将当前列出的全部PDF打包成一个ZIP文件，方便传输，默认会将文件按年份进行归类。
 - `导出当前列表`会弹出保存路径，选择待导出的文件夹路径即可，会同步生成当前导出的PDF的信息为csv文件。
 - 使用快捷键`Ctrl+F`会弹出批量更名的提问框，可将所有已经跟踪的PDF文件更名为`标题`。
 

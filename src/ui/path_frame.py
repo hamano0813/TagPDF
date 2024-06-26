@@ -47,7 +47,36 @@ class PathModel(QtCore.QAbstractTableModel):
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
             if self._data[index.row()][1]:
                 return QtGui.QBrush(QtCore.Qt.GlobalColor.cyan)
+        if role == QtCore.Qt.ItemDataRole.FontRole and index.column() == 0:
+            if self._data[index.row()][1]:
+                font = QtGui.QFont()
+                font.setBold(True)
+                return font
         return None
+
+
+class CornerButton(QtWidgets.QAbstractButton):
+    def __init__(self, parent=None):
+        super(CornerButton, self).__init__(parent)
+        self.setText("↓")
+        self.setObjectName("CornerButton")
+
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        option = QtWidgets.QStyleOptionButton()
+        option.initFrom(self)
+        self.style().drawControl(QtWidgets.QStyle.CE_PushButton, option, painter, self)
+
+        rect = self.rect().adjusted(0, 8, -10, 0)
+        painter.drawText(rect, QtCore.Qt.AlignmentFlag.AlignRight, self.text())
+    
+    def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
+        self.setStyleSheet("background-color: #BCDCF4;")
+        return super().mousePressEvent(event)
+    
+    def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
+        self.setStyleSheet("")
+        return super().mouseReleaseEvent(event)
 
 
 class PathFrame(QtWidgets.QTableView):
@@ -56,9 +85,13 @@ class PathFrame(QtWidgets.QTableView):
     def __init__(self, session_maker: sessionmaker = None):
         super().__init__(parent=None)
         self.setObjectName("PathFrame")
-        self._model = PathModel(session_maker=session_maker)
+        self.setSortingEnabled(True)
 
-        self.setModel(self._model)
+        self._model = PathModel(session_maker=session_maker)
+        self._proxy = QtCore.QSortFilterProxyModel()
+        self._proxy.setSourceModel(self._model)
+        self.setModel(self._proxy)
+
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -67,9 +100,33 @@ class PathFrame(QtWidgets.QTableView):
         self.setColumnWidth(0, 280)
         self.setColumnWidth(1, 320)
         self.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.horizontalHeader().setMinimumHeight(30)
+        self.horizontalHeader().setSortIndicatorShown(False)
 
-        self.clicked.connect(lambda index: self.selectChanged.emit(self._model._paths[index.row()]))
+        self.clicked.connect(self.select)
         self.refresh = self._model.refresh
+
+        self.corner_button = CornerButton(self)
+        self.setCornerWidget(self.corner_button)
+        self.corner_button.clicked.connect(lambda: self._proxy.sort(-1))
+        self.corner_button.setToolTip("恢复默认排序")
+
+    def setCornerWidget(self, widget):
+        widget.setParent(self)
+        widget.setGeometry(self.cornerButtonRect())
+
+    def cornerButtonRect(self):
+        header_height = self.horizontalHeader().height()
+        header_width = self.verticalHeader().width()
+        return QtCore.QRect(0, 0, header_width, header_height)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.corner_button.setGeometry(self.cornerButtonRect())
+
+    def select(self, index: QtCore.QModelIndex):
+        index = self._proxy.mapToSource(index)
+        self.selectChanged.emit(self._model._paths[index.row()])
 
     def set_paths(self, paths: list[str]):
         self._model.set_paths(paths)
