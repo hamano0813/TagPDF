@@ -195,6 +195,9 @@ class FilterFrame(QtWidgets.QFrame):
 
     def keyword_changed(self):
         keywords = self._kw.text().split()
+        if not keywords:
+            self.check_changed()
+            return
         pdfs = functions.get_pdf_by_keywords(self._session, keywords)
         paths = []
         for pdf in pdfs:
