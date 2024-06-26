@@ -102,24 +102,24 @@ class CheckGroup(QtWidgets.QGroupBox):
         super().__init__(title, parent=None)
         self.setObjectName("CheckGroup")
         self.setTitle(title)
-        
+
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        
+
         self.container_widget = QtWidgets.QWidget()
         self.scroll_area.setWidget(self.container_widget)
-        
+
         self.container_layout = CheckFlowLayout()
         self.container_layout.setSpacing(8)
         self.container_widget.setLayout(self.container_layout)
-        
+
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(self.scroll_area)
         self.setLayout(main_layout)
-        
+
         self.container_layout.widthChanged.connect(self.setMinimumWidth)
         self._checks: list[QtWidgets.QCheckBox] = list()
 
@@ -160,6 +160,8 @@ class FilterFrame(QtWidgets.QFrame):
         self._pub = CheckGroup("发布")
         self._rls = CheckGroup("年份")
         self._tag = CheckGroup("标签")
+        self._kw = QtWidgets.QLineEdit()
+        self._kw.setPlaceholderText("输入过滤关键词，以空格分隔")
         self._btn = QtWidgets.QPushButton("导出当前列表")
         self._btn.setObjectName("PushButton")
 
@@ -169,17 +171,30 @@ class FilterFrame(QtWidgets.QFrame):
         self.layout().addWidget(self._pub)
         self.layout().addWidget(self._rls)
         self.layout().addWidget(self._tag)
+        self.layout().addWidget(self._kw)
         self.layout().addWidget(self._btn)
 
         self._pub.checkChanged.connect(self.check_changed)
         self._rls.checkChanged.connect(self.check_changed)
         self._tag.checkChanged.connect(self.check_changed)
+        self._kw.textChanged.connect(self.keyword_changed)
 
     def check_changed(self):
         pub = self._pub.selected
         rls = list(map(int, self._rls.selected))
         tag = self._tag.selected
         pdfs = functions.get_pdf_by_filters(self._session, pub, rls, tag)
+        paths = []
+        for pdf in pdfs:
+            if os.path.exists(pdf.fp):
+                paths.append(pdf.fp)
+            else:
+                functions.delete_pdf(self._session, pdf)
+        self.filterChanged.emit(paths)
+
+    def keyword_changed(self):
+        keywords = self._kw.text().split()
+        pdfs = functions.get_pdf_by_keywords(self._session, keywords)
         paths = []
         for pdf in pdfs:
             if os.path.exists(pdf.fp):

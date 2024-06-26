@@ -72,7 +72,16 @@ class InfoFrame(QtWidgets.QFrame):
                 pdf = functions.create_pdf_by_path(self._session, self._path)
             field = self.sender().property("field")
             data = self._get_info().get(field)
-            functions.update_pdf_with_field(self._session, pdf, field, data)
+            if field in ("tit", "num", "rls"):
+                tit_kw = functions.gen_keywords(self._get_info().get("tit", ""))
+                num_kw = functions.gen_keywords(self._get_info().get("num", ""))
+                rls_kw = functions.gen_keywords(str(self._get_info().get("rls", "")))
+                keyword = f"{tit_kw}|{num_kw}|{rls_kw}"
+                keyword = keyword.replace("||", "|")
+                keyword = keyword.strip("|")
+                functions.update_pdf_with_field(self._session, pdf, field, data, kw=keyword)
+            else:
+                functions.update_pdf_with_field(self._session, pdf, field, data)
         else:
             if pdf:
                 functions.delete_pdf(self._session, pdf)

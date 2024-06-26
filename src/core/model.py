@@ -15,6 +15,7 @@ class PDF(Base):  # PDF表
     tit: Mapped[str] = mapped_column(String(250), nullable=True, comment="title")
     num: Mapped[str] = mapped_column(String(250), nullable=True, comment="number")
     rls: Mapped[int] = mapped_column(Integer, nullable=True, comment="release")
+    kw: Mapped[str] = mapped_column(String(250), nullable=True, comment="keyword")
 
     pubs: Mapped[list["PUB"]] = relationship("PUB", secondary="pdf_pub", back_populates="pdf", uselist=True)
     tags: Mapped[list["TAG"]] = relationship("TAG", secondary="pdf_tag", back_populates="pdf", uselist=True)
@@ -36,6 +37,7 @@ class TAG(Base):  # TAG表
     __tablename__ = "tag"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="ID")
     tag: Mapped[str] = mapped_column(String(250), nullable=False, unique=True, comment="tag")
+    kw: Mapped[str] = mapped_column(String(250), nullable=True, comment="keyword")
 
     pdf: Mapped[list["PDF"]] = relationship("PDF", secondary="pdf_tag", back_populates="tags", uselist=True)
 
@@ -60,6 +62,7 @@ class PUB(Base):
     __tablename__ = "pub"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="ID")
     pub: Mapped[str] = mapped_column(String(250), nullable=False, unique=True, comment="publisher")
+    kw: Mapped[str] = mapped_column(String(250), nullable=True, comment="keyword")
 
     pdf: Mapped[list["PDF"]] = relationship("PDF", secondary="pdf_pub", back_populates="pubs", uselist=True)
 

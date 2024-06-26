@@ -3,7 +3,9 @@ import csv
 import datetime
 import zipfile
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
+from pypinyin import Style, pinyin
 
 from core import model
 
@@ -26,7 +28,7 @@ def zip_path(paths: list[str], folder: str, session: Session) -> None:
     zip_file = zipfile.ZipFile(folder, "w", zipfile.ZIP_DEFLATED)
     csv_path = folder.replace("PDF_", "INFO_").replace(".zip", ".csv")
     csv_file = open(csv_path, "w", encoding="gbk")
-    csv_writer = csv.writer(csv_file, lineterminator='\n')
+    csv_writer = csv.writer(csv_file, lineterminator="\n")
     csv_writer.writerow(["序号", "标题", "文号", "发布单位", "发布日期"])
     csv_infos = list()
     for rid, path in enumerate(paths):
@@ -57,17 +59,23 @@ def rename_pdfs(session: Session):
         title = pdf.tit
         for i in ["/", "\\", ":", "*", "?", '"', "<", ">", "|"]:
             title = title.replace(i, "")
-        title += '.pdf'
+        title += ".pdf"
         root, name = os.path.split(pdf.fp)
         if name != title:
             try:
-                os.rename(pdf.fp, path:=f"{root}/{title}")
+                os.rename(pdf.fp, path := f"{root}/{title}")
                 pdf.fp = path
                 session.add(pdf)
             except PermissionError as e:
                 return pdf.fp
             finally:
                 session.commit()
+
+
+def gen_keywords(string: str) -> str:
+    normal = "".join([i[0] for i in pinyin(string, style=Style.NORMAL, heteronym=False)])
+    first = "".join([i[0] for i in pinyin(string, style=Style.FIRST_LETTER, heteronym=False)])
+    return "|".join([string, normal, first]).lower()
 
 
 def create_pdf_by_path(session: Session, path: str) -> model.PDF:
@@ -83,15 +91,15 @@ def get_pdf_by_path(session: Session, path: str) -> model.PDF | None:
 
 def get_pub_by_pub(session: Session, pub: str) -> model.PUB:
     if not (p := session.query(model.PUB).filter(model.PUB.pub == pub).one_or_none()):
-        p = model.PUB(pub=pub)
+        p = model.PUB(pub=pub, kw=gen_keywords(pub))
         session.add(p)
         session.commit()
-    return p      
+    return p
 
 
 def get_tag_by_tag(session: Session, tag: str) -> model.TAG:
     if not (t := session.query(model.TAG).filter(model.TAG.tag == tag).one_or_none()):
-        t = model.TAG(tag=tag)
+        t = model.TAG(tag=tag, kw=gen_keywords(tag))
         session.add(t)
         session.commit()
     return t
@@ -121,8 +129,23 @@ def get_pdf_by_filters(session: Session, pub: list, rls: list, tag: list) -> lis
     )
 
 
-def update_pdf_with_field(session: Session, pdf: model.PDF, field: str, data: any) -> None:
+def get_pdf_by_keywords(session: Session, keywords: list[str]) -> list:
+    query = session.query(model.PDF)
+    for keyword in keywords:
+        query = query.filter(
+            or_(
+                model.PDF.kw.like(f"%{keyword}%"),
+                model.PDF.pubs.any(model.PUB.kw.like(f"%{keyword}%")),
+                model.PDF.tags.any(model.TAG.kw.like(f"%{keyword}%")),
+            )
+        )
+    return query.all()
+
+
+def update_pdf_with_field(session: Session, pdf: model.PDF, field: str, data: any, kw: str = None) -> None:
     setattr(pdf, field, data)
+    if kw:
+        pdf.kw = kw
     session.add(pdf)
     session.commit()
 
