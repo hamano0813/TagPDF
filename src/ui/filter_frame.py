@@ -161,6 +161,7 @@ class FilterFrame(QtWidgets.QFrame):
         self._rls = CheckGroup("年份")
         self._tag = CheckGroup("标签")
         self._kw = QtWidgets.QLineEdit()
+        self._kw.setObjectName("FilterLine")
         self._kw.setPlaceholderText("输入过滤关键词，以空格分隔")
         self._btn = QtWidgets.QPushButton("导出当前列表")
         self._btn.setObjectName("PushButton")
