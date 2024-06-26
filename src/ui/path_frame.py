@@ -32,6 +32,8 @@ class PathModel(QtCore.QAbstractTableModel):
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             if orientation == QtCore.Qt.Orientation.Horizontal:
                 return list(self._columns.keys())[section]
+            if orientation == QtCore.Qt.Orientation.Vertical:
+                return f"{section+1} "
 
     def rowCount(self, parent: QtCore.QModelIndex = ...) -> int:
         return len(self._paths)
@@ -60,7 +62,8 @@ class PathFrame(QtWidgets.QTableView):
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self.verticalHeader().hide()
+        self.verticalHeader().setFixedWidth(40)
+        self.verticalHeader().setDefaultAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.setColumnWidth(0, 280)
         self.setColumnWidth(1, 320)
         self.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
