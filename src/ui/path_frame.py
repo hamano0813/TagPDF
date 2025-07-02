@@ -129,6 +129,7 @@ class PathFrame(QtWidgets.QTableView):
         self.selectChanged.emit(self._model._paths[index.row()])
 
     def set_paths(self, paths: list[str]):
+        self.setCurrentIndex(QtCore.QModelIndex())
         self._model.set_paths(paths)
         self.selectChanged.emit("")
 
