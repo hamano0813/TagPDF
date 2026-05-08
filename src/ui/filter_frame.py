@@ -37,7 +37,7 @@ class CheckFlowLayout(QtWidgets.QLayout):
             return self._item_list.pop(index)
         return None
 
-    def expandingDirections(self) -> QtCore.Qt.Orientations:
+    def expandingDirections(self) -> QtCore.Qt.Orientation:
         return QtCore.Qt.Orientation.Horizontal
 
     def hasHeightForWidth(self) -> bool:
@@ -69,13 +69,13 @@ class CheckFlowLayout(QtWidgets.QLayout):
         for item in self._item_list:
             style: QtWidgets.QStyle = item.widget().style()
             layout_spacing_x = style.layoutSpacing(
-                QtWidgets.QSizePolicy.PushButton,
-                QtWidgets.QSizePolicy.PushButton,
+                QtWidgets.QSizePolicy.ControlType.PushButton,
+                QtWidgets.QSizePolicy.ControlType.PushButton,
                 QtCore.Qt.Orientation.Horizontal,
             )
             layout_spacing_y = style.layoutSpacing(
-                QtWidgets.QSizePolicy.PushButton,
-                QtWidgets.QSizePolicy.PushButton,
+                QtWidgets.QSizePolicy.ControlType.PushButton,
+                QtWidgets.QSizePolicy.ControlType.PushButton,
                 QtCore.Qt.Orientation.Vertical,
             )
             space_x = spacing + layout_spacing_x
@@ -105,8 +105,8 @@ class CheckGroup(QtWidgets.QGroupBox):
 
         self.scroll_area = QtWidgets.QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+        self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.container_widget = QtWidgets.QWidget()
         self.scroll_area.setWidget(self.container_widget)
