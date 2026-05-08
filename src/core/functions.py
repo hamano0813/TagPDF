@@ -66,10 +66,10 @@ def rename_pdfs(session: Session):
                 os.rename(pdf.fp, path := f"{root}/{title}")
                 pdf.fp = path
                 session.add(pdf)
-            except PermissionError as e:
-                return pdf.fp
-            finally:
                 session.commit()
+            except PermissionError as e:
+                session.rollback()
+                return pdf.fp
 
 
 def gen_keywords(string: str) -> str:
