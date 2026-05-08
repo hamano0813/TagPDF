@@ -1,4 +1,7 @@
+from collections.abc import Callable
+
 from PySide6 import QtWidgets, QtCore
+from sqlalchemy.orm import Session
 
 from core import functions
 from ui.info_frame.tag_edit import TagEdit
@@ -8,7 +11,7 @@ from ui.info_frame.year_spin import YearSpin
 class InfoFrame(QtWidgets.QFrame):
     infoChanged = QtCore.Signal()
 
-    def __init__(self, session_maker=None):
+    def __init__(self, session_maker: Callable[[], Session]):
         super().__init__(parent=None)
         self.setObjectName("InfoFrame")
         self._session = session_maker()
@@ -25,12 +28,13 @@ class InfoFrame(QtWidgets.QFrame):
         self._rls.setProperty("field", "rls")
         self._rls.setFixedHeight(self._tags.sizeHint().height())
 
-        self.setLayout(QtWidgets.QFormLayout())
-        self.layout().addRow("标题", self._tit)
-        self.layout().addRow("文号", self._num)
-        self.layout().addRow("发布", self._pubs)
-        self.layout().addRow("年份", self._rls)
-        self.layout().addRow("标签", self._tags)
+        layout = QtWidgets.QFormLayout()
+        self.setLayout(layout)
+        layout.addRow("标题", self._tit)
+        layout.addRow("文号", self._num)
+        layout.addRow("发布", self._pubs)
+        layout.addRow("年份", self._rls)
+        layout.addRow("标签", self._tags)
 
         self._pubs.tagChanged.connect(self._change_info)
         self._rls.valueChanged.connect(self._change_info)
@@ -44,14 +48,15 @@ class InfoFrame(QtWidgets.QFrame):
         line.setObjectName("LineEdit")
         line.setProperty("field", field)
         line.setFixedHeight(self._tags.sizeHint().height())
-        line.editingFinished.connect(self._change_info)
-        line.data = lambda: line.text()
+        line.editingFinished.connect(
+            lambda f=field: QtCore.QTimer.singleShot(0, lambda: self._change_info(f))
+        )
         return line
 
     def _get_info(self):
         info = {
-            "tit": self._tit.text() if self._tit.text().strip() else None,
-            "num": self._num.text() if self._num.text().strip() else None,
+            "tit": self._tit.text() if self._tit.text().strip() else "",
+            "num": self._num.text() if self._num.text().strip() else "",
             "pubs": [functions.get_pub_by_pub(self._session, p) for p in self._pubs.tags],
             "rls": self._rls.value(),
             "tags": [functions.get_tag_by_tag(self._session, t) for t in self._tags.tags],
@@ -65,12 +70,17 @@ class InfoFrame(QtWidgets.QFrame):
         self._rls.setValue(info.get("rls", None))
         self._tags.tags = [t.tag for t in info.get("tags", list())]
 
-    def _change_info(self) -> None:
+    def _change_info(self, field: str | None = None) -> None:
         pdf = functions.get_pdf_by_path(self._session, self._path)
+        if not isinstance(field, str):
+            sender = self.sender()
+            if not sender or not sender.property("field"):
+                return
+            field = sender.property("field")
+        assert field is not None
         if self._tit.text().strip():
             if not pdf:
                 pdf = functions.create_pdf_by_path(self._session, self._path)
-            field = self.sender().property("field")
             data = self._get_info().get(field)
             if field in ("tit", "num", "rls"):
                 tit_kw = functions.gen_keywords(self._get_info().get("tit", ""))
@@ -82,10 +92,11 @@ class InfoFrame(QtWidgets.QFrame):
                 functions.update_pdf_with_field(self._session, pdf, field, data, kw=keyword)
             else:
                 functions.update_pdf_with_field(self._session, pdf, field, data)
-        else:
-            if pdf:
-                functions.delete_pdf(self._session, pdf)
+        elif pdf and field == "tit":
+            functions.delete_pdf(self._session, pdf)
             self.clear()
+        else:
+            return
         functions.clear_pub_if_unused(self._session)
         functions.clear_tag_if_unused(self._session)
         self.infoChanged.emit()
