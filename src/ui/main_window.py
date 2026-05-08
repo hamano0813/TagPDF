@@ -17,7 +17,7 @@ class MainWindow(QtWidgets.QSplitter):
         model.Base.metadata.create_all(engine)
         self.sessionmaker = sessionmaker(bind=engine)
 
-        self.setWindowTitle("TagPDF v1.7")
+        self.setWindowTitle("TagPDF v1.8.0")
         self.setObjectName("MainWindow")
         self.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.setHandleWidth(1)
@@ -76,14 +76,14 @@ class MainWindow(QtWidgets.QSplitter):
         event.accept()
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
-        if event.key() == QtCore.Qt.Key_F and event.modifiers() == QtCore.Qt.ControlModifier:
+        if event.key() == QtCore.Qt.Key.Key_F and event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier:
             box = QtWidgets.QMessageBox(self)
             box.setWindowTitle("重命名PDF")
             box.setText("是否批量重命名PDF文件？")
-            box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-            box.setButtonText(QtWidgets.QMessageBox.Yes, "确定")
-            box.setButtonText(QtWidgets.QMessageBox.No, "放弃")
-            if box.exec() == QtWidgets.QMessageBox.Yes:
+            box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            box.setButtonText(QtWidgets.QMessageBox.StandardButton.Yes, "确定")
+            box.setButtonText(QtWidgets.QMessageBox.StandardButton.No, "放弃")
+            if box.exec() == QtWidgets.QMessageBox.StandardButton.Yes:
                 session = self.sessionmaker()
                 if isinstance(result := functions.rename_pdfs(session), str):
                     QtWidgets.QMessageBox.critical(self, "错误", f"{result}\n当前被选中或正在被其他程序使用\n无法重命名")

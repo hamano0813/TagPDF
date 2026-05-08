@@ -1,7 +1,7 @@
 [project]
-name = "tagpdf"
-version = "0.1.0"
-description = "Add your description here"
+name = "TagPDF"
+version = "1.8.0"
+description = "A PDF tagging tool built with PySide6 and SQLAlchemy."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
