@@ -46,5 +46,5 @@ def _update_kw(path: str):
         print("The software version featuring keyword filtering has been updated.")
 
     finally:
-        cursor.close()
         conn.commit()
+        cursor.close()
