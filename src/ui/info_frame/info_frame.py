@@ -51,7 +51,7 @@ class InfoFrame(QtWidgets.QFrame):
     def _get_info(self):
         info = {
             "tit": self._tit.text() if self._tit.text().strip() else None,
-            "num": self._num.text() if self._tit.text().strip() else None,
+            "num": self._num.text() if self._num.text().strip() else None,
             "pubs": [functions.get_pub_by_pub(self._session, p) for p in self._pubs.tags],
             "rls": self._rls.value(),
             "tags": [functions.get_tag_by_tag(self._session, t) for t in self._tags.tags],
