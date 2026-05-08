@@ -1,3 +1,5 @@
+from typing import cast
+
 from PySide6 import QtWidgets, QtCore
 
 from core import functions
@@ -16,14 +18,16 @@ class ProxyModel(QtCore.QSortFilterProxyModel):
         super().__init__()
 
     def filterAcceptsRow(self, source_row: int, source_parent: QtCore.QModelIndex) -> bool:
-        index = self.sourceModel().index(source_row, 0, source_parent)
-        path = self.sourceModel().filePath(index)
+        model = cast(QtWidgets.QFileSystemModel, self.sourceModel())
+        index = model.index(source_row, 0, source_parent)
+        path = model.filePath(index)
         if path.lower() in ProxyModel.HIDDEN:
             return False
         return super().filterAcceptsRow(source_row, source_parent)
 
     def lessThan(self, source_left: QtCore.QModelIndex, source_right: QtCore.QModelIndex) -> bool:
-        return self.sourceModel().filePath(source_left) < self.sourceModel().filePath(source_right)
+        left_model = cast(QtWidgets.QFileSystemModel, self.sourceModel())
+        return left_model.filePath(source_left) < left_model.filePath(source_right)
 
 
 class ScanFrame(QtWidgets.QFrame):
@@ -37,7 +41,7 @@ class ScanFrame(QtWidgets.QFrame):
         self._model.setRootPath(root)
         self._model.setReadOnly(True)
         self._model.setFilter(QtCore.QDir.Filter.AllDirs | QtCore.QDir.Filter.NoDotAndDotDot)
-        self._model.columnCount = lambda *args: 1
+        self._model.columnCount = lambda parent=QtCore.QModelIndex(): 1
 
         self._proxy = ProxyModel()
         self._proxy.setSourceModel(self._model)
