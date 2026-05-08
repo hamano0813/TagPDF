@@ -4,11 +4,8 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from core import functions, model, update
+from core import functions, model
 from ui import ScanFrame, FilterFrame, PathFrame, PreviewFrame, InfoFrame
-
-update.update_database("pdf.db3")
-
 
 class MainWindow(QtWidgets.QSplitter):
     def __init__(self):
