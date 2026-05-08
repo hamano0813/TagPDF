@@ -103,12 +103,13 @@ class TagEdit(QtWidgets.QFrame):
         self._line.setObjectName("TagLine")
         self._line.sizeHint = lambda: QtCore.QSize(50, 25)
 
-        self.setLayout(InputFlowLayout())
-        self.layout().setSpacing(3)
-        self.layout().addWidget(self._line)
+        layout = InputFlowLayout()
+        self.setLayout(layout)
+        layout.setSpacing(3)
+        layout.addWidget(self._line)
 
-        self.layout().heightChanged.connect(self.setMinimumHeight)
-        self.layout().widthChanged.connect(self.setMinimumWidth)
+        layout.heightChanged.connect(self.setMinimumHeight)
+        layout.widthChanged.connect(self.setMinimumWidth)
         self._line.returnPressed.connect(self._append_tag)
         self._line.editingFinished.connect(self._append_tag)
 
