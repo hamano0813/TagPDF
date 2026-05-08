@@ -6,6 +6,7 @@ import zipfile
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from pypinyin import Style, pinyin
+from typing import Any
 
 from core import model
 
@@ -32,7 +33,9 @@ def zip_path(paths: list[str], folder: str, session: Session) -> None:
     csv_writer.writerow(["序号", "标题", "文号", "发布单位", "发布日期"])
     csv_infos = list()
     for rid, path in enumerate(paths):
-        pdf: model.PDF = get_pdf_by_path(session, path)
+        pdf: model.PDF | None = get_pdf_by_path(session, path)
+        if not pdf:
+            continue
         info = [rid + 1, pdf.tit, pdf.num if pdf.num else " "]
         if pdf.pubs:
             info.append("、".join([p.pub for p in pdf.pubs]))
@@ -118,15 +121,14 @@ def get_all_tag(session: Session) -> list:
 
 
 def get_pdf_by_filters(session: Session, pub: list, rls: list, tag: list) -> list:
-    return (
-        session.query(model.PDF)
-        .filter(
-            model.PDF.pubs.any(model.PUB.pub.in_(pub)) if pub else True,
-            model.PDF.rls.in_(rls) if rls else True,
-            model.PDF.tags.any(model.TAG.tag.in_(tag)) if tag else True,
-        )
-        .all()
-    )
+    query = session.query(model.PDF)
+    if pub:
+        query = query.filter(model.PDF.pubs.any(model.PUB.pub.in_(pub)))
+    if rls:
+        query = query.filter(model.PDF.rls.in_(rls))
+    if tag:
+        query = query.filter(model.PDF.tags.any(model.TAG.tag.in_(tag)))
+    return query.all()
 
 
 def get_pdf_by_keywords(session: Session, keywords: list[str]) -> list:
@@ -142,7 +144,7 @@ def get_pdf_by_keywords(session: Session, keywords: list[str]) -> list:
     return query.all()
 
 
-def update_pdf_with_field(session: Session, pdf: model.PDF, field: str, data: any, kw: str = None) -> None:
+def update_pdf_with_field(session: Session, pdf: model.PDF, field: str, data: Any, kw: str | None = None) -> None:
     setattr(pdf, field, data)
     if kw:
         pdf.kw = kw
