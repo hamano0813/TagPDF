@@ -1,14 +1,17 @@
 import os
+from typing import Any
+from collections.abc import Callable
 
-from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtGui import QMouseEvent
+from sqlalchemy.orm import Session
 from sqlalchemy.orm.session import sessionmaker
 
 from core import functions
 
 
 class PathModel(QtCore.QAbstractTableModel):
-    def __init__(self, session_maker: sessionmaker = None):
+    def __init__(self, session_maker: Callable[[], Session]):
         super().__init__(parent=None)
         self._session = session_maker()
         self._paths: list[str] = list()
@@ -20,28 +23,29 @@ class PathModel(QtCore.QAbstractTableModel):
         self.refresh()
 
     def refresh(self):
+        self.beginResetModel()
         self._data = list()
         for path in self._paths:
             if pdf := functions.get_pdf_by_path(self._session, path):
                 self._data.append([getattr(pdf, v) for v in self._columns.values()])
             else:
                 self._data.append([os.path.basename(path), "", ""])
-        self.layoutChanged.emit()
+        self.endResetModel()
 
-    def headerData(self, section: int, orientation: QtCore.Qt.Orientation, role: QtCore.Qt.ItemDataRole = ...) -> any:
+    def headerData(self, section: int, orientation: QtCore.Qt.Orientation, role: QtCore.Qt.ItemDataRole = QtCore.Qt.ItemDataRole.DisplayRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             if orientation == QtCore.Qt.Orientation.Horizontal:
                 return list(self._columns.keys())[section]
             if orientation == QtCore.Qt.Orientation.Vertical:
                 return f"{section+1} "
 
-    def rowCount(self, parent: QtCore.QModelIndex = ...) -> int:
+    def rowCount(self, parent: QtCore.QModelIndex = QtCore.QModelIndex()) -> int:
         return len(self._paths)
 
-    def columnCount(self, parent: QtCore.QModelIndex = ...) -> int:
+    def columnCount(self, parent: QtCore.QModelIndex = QtCore.QModelIndex()) -> int:
         return len(self._columns)
 
-    def data(self, index: QtCore.QModelIndex, role: QtCore.Qt.ItemDataRole = ...) -> any:
+    def data(self, index: QtCore.QModelIndex, role: QtCore.Qt.ItemDataRole = QtCore.Qt.ItemDataRole.DisplayRole) -> Any:
         if role == QtCore.Qt.ItemDataRole.DisplayRole:
             return self._data[index.row()][index.column()]
         if role == QtCore.Qt.ItemDataRole.BackgroundRole:
@@ -65,15 +69,15 @@ class CornerButton(QtWidgets.QAbstractButton):
         painter = QtGui.QPainter(self)
         option = QtWidgets.QStyleOptionButton()
         option.initFrom(self)
-        self.style().drawControl(QtWidgets.QStyle.CE_PushButton, option, painter, self)
+        self.style().drawControl(QtWidgets.QStyle.ControlElement.CE_PushButton, option, painter, self)
 
         rect = self.rect().adjusted(0, 8, -10, 0)
         painter.drawText(rect, QtCore.Qt.AlignmentFlag.AlignRight, self.text())
-    
+
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
         self.setStyleSheet("background-color: #BCDCF4;")
         return super().mousePressEvent(event)
-    
+
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
         self.setStyleSheet("")
         return super().mouseReleaseEvent(event)
@@ -82,7 +86,7 @@ class CornerButton(QtWidgets.QAbstractButton):
 class PathFrame(QtWidgets.QTableView):
     selectChanged = QtCore.Signal(str)
 
-    def __init__(self, session_maker: sessionmaker = None):
+    def __init__(self, session_maker: Callable[[], Session]):
         super().__init__(parent=None)
         self.setObjectName("PathFrame")
         self.setSortingEnabled(True)
@@ -92,9 +96,9 @@ class PathFrame(QtWidgets.QTableView):
         self._proxy.setSourceModel(self._model)
         self.setModel(self._proxy)
 
-        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.SingleSelection)
+        self.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
         self.verticalHeader().setFixedWidth(40)
         self.verticalHeader().setDefaultAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.setColumnWidth(0, 280)
