@@ -1,9 +1,9 @@
 # TagPDF PDF标签工具
 
-[![python](https://img.shields.io/badge/Python-≥3.10-darkcyan?logo=python&style=flat&labelColor=013243)](https://www.python.org/)
-[![PySide6](https://img.shields.io/badge/PySide6-≥6.6-darkcyan?logo=qt&style=flat&labelColor=013243)](https://doc.qt.io/qtforpython/)
-[![sqlalchemy](https://img.shields.io/badge/sqlalchemy-≥2.0-darkcyan?logo=sqlalchemy&style=flat&labelColor=013243)](https://www.sqlalchemy.org/)
-[![pypinyin](https://img.shields.io/badge/pypinyin-≥0.51-darkcyan?logo=pypi&style=flat&labelColor=013243)](https://pypinyin.readthedocs.io/zh-cn/master/)
+[![python](https://img.shields.io/badge/Python-≥3.14-darkcyan?logo=python&style=flat&labelColor=013243)](https://www.python.org/)
+[![PySide6](https://img.shields.io/badge/PySide6-≥6.11-darkcyan?logo=qt&style=flat&labelColor=013243)](https://doc.qt.io/qtforpython/)
+[![sqlalchemy](https://img.shields.io/badge/sqlalchemy-≥2.0.49-darkcyan?logo=sqlalchemy&style=flat&labelColor=013243)](https://www.sqlalchemy.org/)
+[![pypinyin](https://img.shields.io/badge/pypinyin-≥0.55-darkcyan?logo=pypi&style=flat&labelColor=013243)](https://pypinyin.readthedocs.io/zh-cn/master/)
 
 ## 介绍
 
@@ -11,7 +11,8 @@
 
 ## 构建
 
-- 要求系统中已经安装`Python`解释器，且`Python`的版本要求大于等于`3.10`。
+- 要求系统中已经安装`Python`解释器，且`Python`的版本要求大于等于`3.14`。
+- 要求系统中已经安装`uv`包管理器（参考 [uv官方安装指南](https://docs.astral.sh/uv/#installation)）。
 - 双击`build.bat`即可构建，构建完成后会在`dist`文件夹中生成`TagPDF`文件夹。
 
 ## 下载
